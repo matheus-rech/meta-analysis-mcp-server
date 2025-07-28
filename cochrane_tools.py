@@ -89,9 +89,9 @@ class CochraneComplianceHandler:
                 "rationale": f"Automated assessment based on study characteristics for {domain.replace('_', ' ')}"
             }
         
-        for idx, row in data.iterrows():
+        for i, (idx, row) in enumerate(data.iterrows()):
             study_assessment = {
-                "study_id": row.get("study_id", f"Study_{int(idx)+1}"),
+                "study_id": row.get("study_id", f"Study_{i+1}"),
                 "domains": {
                     "randomization_process": "Some concerns",
                     "deviations_from_protocol": "Low risk",
