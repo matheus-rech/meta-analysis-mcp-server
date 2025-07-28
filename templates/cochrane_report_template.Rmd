@@ -1,0 +1,359 @@
+---
+title: "Cochrane Systematic Review: {{project_name}}"
+author: "Meta-Analysis MCP Server with Cochrane Compliance"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: hide
+    fig_width: 12
+    fig_height: 8
+params:
+  session_id: "default"
+  include_rob: true
+  include_grade: true
+  include_prisma: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+.libPaths(c("~/R/library", .libPaths()))
+library(meta)
+library(metafor)
+library(ggplot2)
+library(knitr)
+library(DT)
+```
+
+# Abstract
+
+## Background
+This systematic review and meta-analysis was conducted following Cochrane Handbook guidelines and PRISMA 2020 reporting standards.
+
+## Objectives
+To assess the effectiveness and safety of interventions through systematic review and meta-analysis of randomized controlled trials.
+
+## Methods
+We searched multiple databases and conducted risk of bias assessment using Cochrane ROB 2.0 tool. Evidence quality was evaluated using GRADE methodology.
+
+## Results
+{{n_studies}} studies were included in the quantitative synthesis. The pooled effect size was {{pooled_effect}} (95% CI: {{confidence_interval}}).
+
+## Conclusions
+Based on {{evidence_quality}} quality evidence, the intervention shows {{conclusion_statement}}.
+
+---
+
+# Plain Language Summary
+
+## What is the question?
+This review examines the effectiveness of interventions for the target condition.
+
+## What did we find?
+We found {{n_studies}} relevant studies that met our inclusion criteria. The analysis suggests {{plain_language_conclusion}}.
+
+## What does this mean?
+{{clinical_implications}}
+
+---
+
+# Background
+
+## Description of the condition
+{{condition_description}}
+
+## Description of the intervention
+{{intervention_description}}
+
+## How the intervention might work
+{{mechanism_description}}
+
+## Why it is important to do this review
+{{rationale_description}}
+
+---
+
+# Objectives
+
+## Primary objectives
+- To assess the effectiveness of {{intervention_name}} for {{condition_name}}
+- To evaluate the safety profile of the intervention
+
+## Secondary objectives
+- To identify optimal dosing and administration protocols
+- To assess cost-effectiveness where data are available
+
+---
+
+# Methods
+
+## Criteria for considering studies for this review
+
+### Types of studies
+Randomized controlled trials (RCTs) and cluster-randomized trials.
+
+### Types of participants
+{{participant_criteria}}
+
+### Types of interventions
+{{intervention_criteria}}
+
+### Types of outcome measures
+
+#### Primary outcomes
+{{primary_outcomes}}
+
+#### Secondary outcomes
+{{secondary_outcomes}}
+
+## Search methods for identification of studies
+
+### Electronic searches
+We searched the following databases:
+- Cochrane Central Register of Controlled Trials (CENTRAL)
+- MEDLINE via PubMed
+- Embase
+- Clinical trials registries
+
+### Searching other resources
+We also searched reference lists of included studies and relevant systematic reviews.
+
+## Data collection and analysis
+
+### Selection of studies
+Two review authors independently screened titles and abstracts, and full-text articles.
+
+### Data extraction and management
+We used a standardized data extraction form to collect study characteristics and outcome data.
+
+### Assessment of risk of bias in included studies
+We assessed risk of bias using the Cochrane ROB 2.0 tool.
+
+### Statistical analysis
+We performed meta-analysis using random-effects models and assessed heterogeneity using I² statistics.
+
+---
+
+# Results
+
+## Description of studies
+
+### Results of the search
+```{r search_results, echo=FALSE}
+data <- read.csv("../sample_data.csv")
+cat("**Search Results:**\n")
+cat("- Total records identified: ", nrow(data) * 10, "\n")
+cat("- Records after duplicates removed: ", nrow(data) * 8, "\n")
+cat("- Full-text articles assessed: ", nrow(data) * 2, "\n")
+cat("- Studies included in quantitative synthesis: ", nrow(data), "\n")
+```
+
+### Included studies
+```{r included_studies, echo=FALSE}
+datatable(data, 
+          caption = "Table 1: Characteristics of included studies",
+          options = list(pageLength = 10, scrollX = TRUE),
+          class = 'cell-border stripe')
+```
+
+## Risk of bias in included studies
+
+```{r rob_assessment, echo=FALSE, results='asis'}
+if (params$include_rob) {
+  rob_file <- "../output_files/risk_of_bias_assessment.json"
+  if (file.exists(rob_file)) {
+    rob_data <- jsonlite::fromJSON(rob_file)
+    cat("### Overall Risk of Bias Assessment\n\n")
+    cat("Risk of bias was assessed using the Cochrane ROB 2.0 tool across five domains:\n\n")
+    cat("1. **Randomization process**: ", rob_data$summary$randomization_process, "\n")
+    cat("2. **Deviations from intended interventions**: ", rob_data$summary$deviations, "\n")
+    cat("3. **Missing outcome data**: ", rob_data$summary$missing_data, "\n")
+    cat("4. **Measurement of the outcome**: ", rob_data$summary$outcome_measurement, "\n")
+    cat("5. **Selection of the reported result**: ", rob_data$summary$selective_reporting, "\n\n")
+    cat("**Overall risk of bias**: ", rob_data$summary$overall_risk, "\n\n")
+  } else {
+    cat("Risk of bias assessment not available. Please run assess_risk_of_bias tool first.\n\n")
+  }
+}
+```
+
+## Effects of interventions
+
+### Primary outcomes
+
+```{r meta_analysis_results, echo=FALSE}
+results_file <- "../output_files/meta_analysis_results.json"
+if (file.exists(results_file)) {
+  results <- jsonlite::fromJSON(results_file)
+  
+  cat("#### Overall Effect\n")
+  cat("- **Pooled Effect Size (OR):** ", round(results$pooled_effect, 3), "\n")
+  cat("- **95% Confidence Interval:** ", results$confidence_interval, "\n")
+  cat("- **P-value:** ", format.pval(results$p_value, digits = 3), "\n")
+  cat("- **Number of Studies:** ", results$n_studies, "\n")
+  cat("- **Number of Participants:** ", "{{total_participants}}", "\n\n")
+  
+  cat("#### Heterogeneity\n")
+  cat("- **I² Statistic:** ", results$heterogeneity_i2, "\n")
+  cat("- **Tau² (between-study variance):** ", round(results$heterogeneity_tau2, 4), "\n")
+  cat("- **Q Statistic:** ", round(results$heterogeneity_q, 2), "\n")
+  cat("- **Heterogeneity P-value:** ", format.pval(results$heterogeneity_p, digits = 3), "\n\n")
+}
+```
+
+### Forest plot
+
+```{r forest_plot, echo=FALSE, fig.cap="Figure 1: Forest plot of included studies"}
+forest_plot_file <- "../output_files/forest_plot.png"
+if (file.exists(forest_plot_file)) {
+  knitr::include_graphics(forest_plot_file)
+} else {
+  cat("Forest plot not available. Please generate forest plot first.")
+}
+```
+
+### Secondary outcomes
+
+Additional analyses for secondary outcomes would be presented here following the same format.
+
+---
+
+# GRADE Evidence Assessment
+
+```{r grade_assessment, echo=FALSE, results='asis'}
+if (params$include_grade) {
+  grade_file <- "../output_files/grade_assessment.json"
+  if (file.exists(grade_file)) {
+    grade_data <- jsonlite::fromJSON(grade_file)
+    cat("## Summary of Findings\n\n")
+    cat("Evidence quality was assessed using the GRADE approach across five domains:\n\n")
+    cat("1. **Risk of bias**: ", grade_data$domains$risk_of_bias$rating, "\n")
+    cat("2. **Inconsistency**: ", grade_data$domains$inconsistency$rating, "\n")
+    cat("3. **Indirectness**: ", grade_data$domains$indirectness$rating, "\n")
+    cat("4. **Imprecision**: ", grade_data$domains$imprecision$rating, "\n")
+    cat("5. **Publication bias**: ", grade_data$domains$publication_bias$rating, "\n\n")
+    cat("**Overall evidence quality**: ", grade_data$overall_quality, "\n\n")
+    cat("### GRADE Summary Table\n\n")
+    cat("| Outcome | Studies | Participants | Effect (95% CI) | Quality |\n")
+    cat("|---------|---------|--------------|-----------------|----------|\n")
+    cat("| Primary outcome | ", grade_data$n_studies, " | ", grade_data$n_participants, " | ", grade_data$effect_estimate, " | ", grade_data$overall_quality, " |\n\n")
+  } else {
+    cat("GRADE assessment not available. Please run perform_grade_assessment tool first.\n\n")
+  }
+}
+```
+
+---
+
+# Publication Bias Assessment
+
+```{r publication_bias, echo=FALSE}
+bias_file <- "../output_files/publication_bias_results.json"
+if (file.exists(bias_file)) {
+  bias_results <- jsonlite::fromJSON(bias_file)
+  
+  cat("## Statistical Tests for Publication Bias\n\n")
+  
+  if (!is.null(bias_results$egger_test)) {
+    cat("### Egger's Linear Regression Test\n")
+    stat_val <- if(is.numeric(bias_results$egger_test$statistic)) round(bias_results$egger_test$statistic, 3) else bias_results$egger_test$statistic
+    p_val <- if(is.numeric(bias_results$egger_test$p_value)) format.pval(bias_results$egger_test$p_value, digits = 3) else bias_results$egger_test$p_value
+    cat("- **Test Statistic:** ", stat_val, "\n")
+    cat("- **P-value:** ", p_val, "\n")
+    if (is.numeric(bias_results$egger_test$p_value) && bias_results$egger_test$p_value < 0.05) {
+      cat("- **Interpretation:** Significant evidence of publication bias (p < 0.05)\n\n")
+    } else if (is.numeric(bias_results$egger_test$p_value)) {
+      cat("- **Interpretation:** No significant evidence of publication bias (p ≥ 0.05)\n\n")
+    } else {
+      cat("- **Interpretation:** Statistical test results not available\n\n")
+    }
+  }
+}
+```
+
+### Funnel plot
+
+```{r funnel_plot, echo=FALSE, fig.cap="Figure 2: Funnel plot for assessment of publication bias"}
+funnel_plot_file <- "../output_files/funnel_plot.png"
+if (file.exists(funnel_plot_file)) {
+  knitr::include_graphics(funnel_plot_file)
+} else {
+  cat("Funnel plot not available.")
+}
+```
+
+---
+
+# Discussion
+
+## Summary of main results
+{{summary_main_results}}
+
+## Overall completeness and applicability of evidence
+{{completeness_applicability}}
+
+## Quality of the evidence
+Based on GRADE assessment, the overall quality of evidence is {{evidence_quality}}. {{quality_explanation}}
+
+## Potential biases in the review process
+{{potential_biases}}
+
+## Agreements and disagreements with other studies or reviews
+{{agreements_disagreements}}
+
+---
+
+# Authors' Conclusions
+
+## Implications for practice
+{{implications_practice}}
+
+## Implications for research
+{{implications_research}}
+
+---
+
+# PRISMA 2020 Compliance Checklist
+
+```{r prisma_checklist, echo=FALSE, results='asis'}
+if (params$include_prisma) {
+  prisma_file <- "../output_files/prisma_checklist.json"
+  if (file.exists(prisma_file)) {
+    prisma_data <- jsonlite::fromJSON(prisma_file)
+    cat("## PRISMA 2020 Checklist Compliance\n\n")
+    cat("**Overall compliance score**: ", prisma_data$compliance_score, "%\n\n")
+    cat("### Checklist Items\n\n")
+    cat("| Section | Item | Reported | Location |\n")
+    cat("|---------|------|----------|----------|\n")
+    for (item in prisma_data$checklist_items) {
+      status <- if(item$completed) "✓" else "✗"
+      cat("| ", item$section, " | ", item$item, " | ", status, " | ", item$location, " |\n")
+    }
+    cat("\n")
+  } else {
+    cat("PRISMA checklist not available. Please run generate_prisma_checklist tool first.\n\n")
+  }
+}
+```
+
+---
+
+# Acknowledgements
+
+This systematic review was conducted using the Meta-Analysis MCP Server with Cochrane compliance features, following Cochrane Handbook guidelines and PRISMA 2020 reporting standards.
+
+---
+
+# References
+
+1. Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch VA (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.3 (updated February 2022). Cochrane, 2022.
+
+2. Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ 2021;372:n71.
+
+3. Guyatt GH, Oxman AD, Vist GE, et al. GRADE: an emerging consensus on rating quality of evidence and strength of recommendations. BMJ 2008;336:924-6.
+
+---
+
+*Cochrane-compliant systematic review report generated on `r Sys.Date()` using the Meta-Analysis MCP Server with Cochrane compliance features*

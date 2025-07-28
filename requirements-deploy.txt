@@ -1,0 +1,8 @@
+pandas>=1.5.0
+asyncio-compat
+pathlib2
+uuid
+dataclasses
+typing-extensions
+logging
+jsonlite
