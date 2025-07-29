@@ -738,7 +738,7 @@ class MetaAnalysisTools:
         
         return result
 
-    async def generate_report(self, session_id: str, format: str = "html") -> Dict[str, Any]:
+    async def generate_report(self, session_id: str, format: str = "html", include_plots: bool = True, include_data_summary: bool = True) -> Dict[str, Any]:
         """Generate comprehensive meta-analysis report."""
         if session_id not in self.sessions:
             raise ValueError(f"Session {session_id} not found")
