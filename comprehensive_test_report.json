@@ -1,0 +1,1510 @@
+{
+  "timestamp": "2025-07-29T03:02:36.103932",
+  "test_scenario": "Psychological Interventions for Depression",
+  "studies_count": 5,
+  "tools_tested": 11,
+  "results": {
+    "perform_meta_analysis": {
+      "meta_analysis_results": {
+        "method": "random",
+        "measure": "SMD",
+        "number_of_studies": 5,
+        "total_participants": 1074,
+        "pooled_effect": -0.8804438234362243,
+        "standard_error": 0.06525558206463102,
+        "ci_lower": -1.008342414073099,
+        "ci_upper": -0.7525452327993496,
+        "z_statistic": -13.492237684190867,
+        "p_value": 0.0,
+        "significant": "True"
+      },
+      "heterogeneity": {
+        "Q_statistic": 0.7754728039750483,
+        "degrees_of_freedom": 4,
+        "p_heterogeneity": 0.9417057033431677,
+        "I_squared": 0.0,
+        "tau_squared": 0.0,
+        "interpretation": "Low heterogeneity"
+      },
+      "study_results": [
+        {
+          "study_id": "Smith2020_CBT",
+          "effect_size": -0.85,
+          "standard_error": 0.14,
+          "weight": 21.725974441805064,
+          "ci_lower": -1.1243949578356076,
+          "ci_upper": -0.5756050421643923
+        },
+        {
+          "study_id": "Garcia2019_MBCT",
+          "effect_size": -0.91,
+          "standard_error": 0.16,
+          "weight": 16.633949182007,
+          "ci_lower": -1.2235942375264086,
+          "ci_upper": -0.5964057624735914
+        },
+        {
+          "study_id": "Chen2021_IPT",
+          "effect_size": -0.94,
+          "standard_error": 0.12,
+          "weight": 29.571465212456893,
+          "ci_lower": -1.1751956781448065,
+          "ci_upper": -0.7048043218551935
+        },
+        {
+          "study_id": "Brown2018_BA",
+          "effect_size": -0.76,
+          "standard_error": 0.18,
+          "weight": 13.14287342775862,
+          "ci_lower": -1.1127935172172096,
+          "ci_upper": -0.4072064827827903
+        },
+        {
+          "study_id": "Taylor2022_ACT",
+          "effect_size": -0.88,
+          "standard_error": 0.15,
+          "weight": 18.92573773597241,
+          "ci_lower": -1.1739945976810082,
+          "ci_upper": -0.5860054023189919
+        }
+      ],
+      "summary": "Meta-analysis shows a significant negative effect (SMD = -0.880, 95% CI [-1.008, -0.753], p = 0.000) with low heterogeneity."
+    },
+    "create_forest_plot": {
+      "error": "It seems like you are running a slim version of your operating system and are missing some common dependencies. The following command should install the required dependencies on most systems:\n\n$ sudo apt update && sudo apt-get install libnss3 libatk-bridge2.0-0 libcups2 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libxkbcommon0 libpango-1.0-0 libcairo2 libasound2\n\nIf you have already run the above command and are still seeing this error, or the above command fails, consult the Kaleido documentation for operating system to install chromium dependencies.\n\nFor support, run the command `choreo_diagnose` and create an issue with its output."
+    },
+    "assess_heterogeneity": {
+      "heterogeneity_assessment": {
+        "Q_statistic": 0.7754728039750483,
+        "degrees_of_freedom": 4,
+        "p_value": 0.9417057033431677,
+        "I_squared": 0.0,
+        "tau_squared": 0.0,
+        "H_statistic": 0.44030466837607124,
+        "significant_heterogeneity": "False",
+        "interpretation": {
+          "I_squared_level": "Low heterogeneity",
+          "clinical_significance": "Acceptable heterogeneity for pooling",
+          "recommendation": "Fixed-effects model may be appropriate"
+        }
+      },
+      "study_contributions": [
+        {
+          "study_id": "Smith2020_CBT",
+          "effect_size": -0.85,
+          "weight": 21.725974441805064,
+          "deviation_from_pooled": 0.030443823436224315
+        },
+        {
+          "study_id": "Garcia2019_MBCT",
+          "effect_size": -0.91,
+          "weight": 16.633949182007,
+          "deviation_from_pooled": 0.029556176563775738
+        },
+        {
+          "study_id": "Chen2021_IPT",
+          "effect_size": -0.94,
+          "weight": 29.571465212456893,
+          "deviation_from_pooled": 0.059556176563775653
+        },
+        {
+          "study_id": "Brown2018_BA",
+          "effect_size": -0.76,
+          "weight": 13.14287342775862,
+          "deviation_from_pooled": 0.12044382343622428
+        },
+        {
+          "study_id": "Taylor2022_ACT",
+          "effect_size": -0.88,
+          "weight": 18.92573773597241,
+          "deviation_from_pooled": 0.00044382343622428877
+        }
+      ]
+    },
+    "detect_publication_bias": {
+      "error": "It seems like you are running a slim version of your operating system and are missing some common dependencies. The following command should install the required dependencies on most systems:\n\n$ sudo apt update && sudo apt-get install libnss3 libatk-bridge2.0-0 libcups2 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libxkbcommon0 libpango-1.0-0 libcairo2 libasound2\n\nIf you have already run the above command and are still seeing this error, or the above command fails, consult the Kaleido documentation for operating system to install chromium dependencies.\n\nFor support, run the command `choreo_diagnose` and create an issue with its output."
+    },
+    "assess_risk_of_bias": {
+      "assessment_summary": {
+        "total_studies": 5,
+        "assessment_mode": "automated",
+        "domains_assessed": [
+          "randomization",
+          "deviations",
+          "missing_outcome_data",
+          "outcome_measurement",
+          "selective_reporting"
+        ],
+        "assessment_date": "2025-07-29T03:02:36.510149"
+      },
+      "study_assessments": [
+        {
+          "study_id": "Smith2020_CBT",
+          "title": "Cognitive Behavioral Therapy for Major Depression: A Randomized Trial",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Low",
+              "reasoning": "Adequate randomization method described",
+              "confidence": "High",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ]
+            },
+            "deviations": {
+              "risk_level": "Some concerns",
+              "reasoning": "Partial blinding may affect adherence",
+              "confidence": "Low",
+              "signaling_questions": []
+            },
+            "missing_outcome_data": {
+              "risk_level": "Low",
+              "reasoning": "Low attrition rate (0.12%)",
+              "confidence": "High",
+              "signaling_questions": []
+            },
+            "outcome_measurement": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            },
+            "selective_reporting": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            }
+          },
+          "overall_risk": "Some concerns"
+        },
+        {
+          "study_id": "Garcia2019_MBCT",
+          "title": "Mindfulness-Based Cognitive Therapy vs Waitlist Control",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Low",
+              "reasoning": "Adequate randomization method described",
+              "confidence": "High",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ]
+            },
+            "deviations": {
+              "risk_level": "Low",
+              "reasoning": "Adequate blinding described",
+              "confidence": "High",
+              "signaling_questions": []
+            },
+            "missing_outcome_data": {
+              "risk_level": "Low",
+              "reasoning": "Low attrition rate (0.08%)",
+              "confidence": "High",
+              "signaling_questions": []
+            },
+            "outcome_measurement": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            },
+            "selective_reporting": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            }
+          },
+          "overall_risk": "Some concerns"
+        },
+        {
+          "study_id": "Chen2021_IPT",
+          "title": "Interpersonal Therapy for Depression: Efficacy Trial",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ]
+            },
+            "deviations": {
+              "risk_level": "Some concerns",
+              "reasoning": "Partial blinding may affect adherence",
+              "confidence": "Low",
+              "signaling_questions": []
+            },
+            "missing_outcome_data": {
+              "risk_level": "Low",
+              "reasoning": "Low attrition rate (0.15%)",
+              "confidence": "High",
+              "signaling_questions": []
+            },
+            "outcome_measurement": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            },
+            "selective_reporting": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            }
+          },
+          "overall_risk": "Some concerns"
+        },
+        {
+          "study_id": "Brown2018_BA",
+          "title": "Behavioral Activation vs Treatment as Usual",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ]
+            },
+            "deviations": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            },
+            "missing_outcome_data": {
+              "risk_level": "Low",
+              "reasoning": "Low attrition rate (0.22%)",
+              "confidence": "High",
+              "signaling_questions": []
+            },
+            "outcome_measurement": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            },
+            "selective_reporting": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            }
+          },
+          "overall_risk": "Some concerns"
+        },
+        {
+          "study_id": "Taylor2022_ACT",
+          "title": "Acceptance and Commitment Therapy for Depression",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Low",
+              "reasoning": "Adequate randomization method described",
+              "confidence": "High",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ]
+            },
+            "deviations": {
+              "risk_level": "Some concerns",
+              "reasoning": "Partial blinding may affect adherence",
+              "confidence": "Low",
+              "signaling_questions": []
+            },
+            "missing_outcome_data": {
+              "risk_level": "Low",
+              "reasoning": "Low attrition rate (0.1%)",
+              "confidence": "High",
+              "signaling_questions": []
+            },
+            "outcome_measurement": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            },
+            "selective_reporting": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information",
+              "confidence": "Low",
+              "signaling_questions": []
+            }
+          },
+          "overall_risk": "Some concerns"
+        }
+      ],
+      "domain_summary": {
+        "randomization": {
+          "low_risk": 3,
+          "some_concerns": 2,
+          "high_risk": 0,
+          "percentage_low": 60.0,
+          "percentage_high": 0.0
+        },
+        "deviations": {
+          "low_risk": 1,
+          "some_concerns": 4,
+          "high_risk": 0,
+          "percentage_low": 20.0,
+          "percentage_high": 0.0
+        },
+        "missing_outcome_data": {
+          "low_risk": 5,
+          "some_concerns": 0,
+          "high_risk": 0,
+          "percentage_low": 100.0,
+          "percentage_high": 0.0
+        },
+        "outcome_measurement": {
+          "low_risk": 0,
+          "some_concerns": 5,
+          "high_risk": 0,
+          "percentage_low": 0.0,
+          "percentage_high": 0.0
+        },
+        "selective_reporting": {
+          "low_risk": 0,
+          "some_concerns": 5,
+          "high_risk": 0,
+          "percentage_low": 0.0,
+          "percentage_high": 0.0
+        }
+      },
+      "overall_assessment": {
+        "studies_low_risk": 0,
+        "studies_some_concerns": 5,
+        "studies_high_risk": 0,
+        "percentage_low_risk": 0.0,
+        "percentage_high_risk": 0.0,
+        "interpretation": "Mixed risk profile - moderate confidence in results"
+      },
+      "visualization": {
+        "plot_type": "traffic_light",
+        "data_matrix": [
+          {
+            "study_id": "Smith2020_CBT",
+            "domains": {
+              "randomization": "Low",
+              "deviations": "Some concerns",
+              "missing_outcome_data": "Low",
+              "outcome_measurement": "Some concerns",
+              "selective_reporting": "Some concerns"
+            }
+          },
+          {
+            "study_id": "Garcia2019_MBCT",
+            "domains": {
+              "randomization": "Low",
+              "deviations": "Low",
+              "missing_outcome_data": "Low",
+              "outcome_measurement": "Some concerns",
+              "selective_reporting": "Some concerns"
+            }
+          },
+          {
+            "study_id": "Chen2021_IPT",
+            "domains": {
+              "randomization": "Some concerns",
+              "deviations": "Some concerns",
+              "missing_outcome_data": "Low",
+              "outcome_measurement": "Some concerns",
+              "selective_reporting": "Some concerns"
+            }
+          },
+          {
+            "study_id": "Brown2018_BA",
+            "domains": {
+              "randomization": "Some concerns",
+              "deviations": "Some concerns",
+              "missing_outcome_data": "Low",
+              "outcome_measurement": "Some concerns",
+              "selective_reporting": "Some concerns"
+            }
+          },
+          {
+            "study_id": "Taylor2022_ACT",
+            "domains": {
+              "randomization": "Low",
+              "deviations": "Some concerns",
+              "missing_outcome_data": "Low",
+              "outcome_measurement": "Some concerns",
+              "selective_reporting": "Some concerns"
+            }
+          }
+        ],
+        "color_coding": {
+          "Low": "#00FF00",
+          "Some concerns": "#FFFF00",
+          "High": "#FF0000"
+        }
+      }
+    },
+    "generate_prisma_checklist": {
+      "checklist_summary": {
+        "prisma_version": "PRISMA 2020",
+        "total_items": 27,
+        "assessment_date": "2025-07-29T03:02:36.510355",
+        "review_title": "Psychological Interventions for Depression: A Systematic Review"
+      },
+      "item_assessments": {
+        "1": {
+          "item_number": "1",
+          "section": "Title",
+          "description": "Identify the report as a systematic review",
+          "compliant": true,
+          "evidence": "Title identifies report as systematic review",
+          "confidence": "High"
+        },
+        "2": {
+          "item_number": "2",
+          "section": "Abstract - Background",
+          "description": "Provide structured summary including background",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "3": {
+          "item_number": "3",
+          "section": "Abstract - Objectives",
+          "description": "Provide structured summary including objectives",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "4": {
+          "item_number": "4",
+          "section": "Abstract - Methods",
+          "description": "Provide structured summary including methods",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "5": {
+          "item_number": "5",
+          "section": "Abstract - Results",
+          "description": "Provide structured summary including results",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "6": {
+          "item_number": "6",
+          "section": "Abstract - Conclusions",
+          "description": "Provide structured summary including conclusions",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "7": {
+          "item_number": "7",
+          "section": "Abstract - Registration",
+          "description": "Provide registration information",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "8": {
+          "item_number": "8",
+          "section": "Introduction - Rationale",
+          "description": "Describe rationale for review",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "9": {
+          "item_number": "9",
+          "section": "Introduction - Objectives",
+          "description": "Provide explicit statement of objectives",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "10": {
+          "item_number": "10",
+          "section": "Methods - Eligibility criteria",
+          "description": "Specify inclusion and exclusion criteria",
+          "compliant": true,
+          "evidence": "Inclusion/exclusion criteria provided",
+          "confidence": "High"
+        },
+        "11": {
+          "item_number": "11",
+          "section": "Methods - Information sources",
+          "description": "Describe all information sources",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "12": {
+          "item_number": "12",
+          "section": "Methods - Search strategy",
+          "description": "Present full search strategies",
+          "compliant": true,
+          "evidence": "Search strategy provided",
+          "confidence": "High"
+        },
+        "13": {
+          "item_number": "13",
+          "section": "Methods - Selection process",
+          "description": "Describe methods of study selection",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "14": {
+          "item_number": "14",
+          "section": "Methods - Data collection",
+          "description": "Describe methods of data extraction",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "15": {
+          "item_number": "15",
+          "section": "Methods - Data items",
+          "description": "List and define all variables",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "16": {
+          "item_number": "16",
+          "section": "Methods - Study risk of bias",
+          "description": "Describe methods for assessing risk of bias",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "17": {
+          "item_number": "17",
+          "section": "Methods - Effect measures",
+          "description": "Specify for each outcome the effect measure",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "18": {
+          "item_number": "18",
+          "section": "Methods - Synthesis methods",
+          "description": "Describe processes used to decide whether to meta-analyse",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "19": {
+          "item_number": "19",
+          "section": "Methods - Reporting bias",
+          "description": "Describe any methods used to assess risk of bias",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "20": {
+          "item_number": "20",
+          "section": "Methods - Certainty assessment",
+          "description": "Describe methods used to assess certainty",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "21": {
+          "item_number": "21",
+          "section": "Results - Study selection",
+          "description": "Give numbers of studies screened and included",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "22": {
+          "item_number": "22",
+          "section": "Results - Study characteristics",
+          "description": "Cite each included study and present characteristics",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "23": {
+          "item_number": "23",
+          "section": "Results - Risk of bias",
+          "description": "Present assessments of risk of bias for each study",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "24": {
+          "item_number": "24",
+          "section": "Results - Results of individual studies",
+          "description": "For all outcomes present summary statistics",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "25": {
+          "item_number": "25",
+          "section": "Results - Results of syntheses",
+          "description": "Present results of each meta-analysis",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "26": {
+          "item_number": "26",
+          "section": "Results - Reporting biases",
+          "description": "Present assessments of risk of bias due to missing results",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "27": {
+          "item_number": "27",
+          "section": "Results - Certainty of evidence",
+          "description": "Present assessments of certainty for each outcome",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        }
+      },
+      "compliance_score": {
+        "compliant_items": 3,
+        "total_items": 27,
+        "percentage": 11.11111111111111,
+        "grade": "D (Poor)",
+        "interpretation": "Poor PRISMA compliance - major revisions needed before publication"
+      },
+      "recommendations": [
+        "Address the following non-compliant items:",
+        "Item 2: Provide structured summary including background",
+        "Item 3: Provide structured summary including objectives",
+        "Item 4: Provide structured summary including methods",
+        "Item 5: Provide structured summary including results",
+        "Item 6: Provide structured summary including conclusions",
+        "Consider using PRISMA-P for protocol development",
+        "Register systematic review protocol in PROSPERO",
+        "Consult PRISMA 2020 explanation and elaboration document",
+        "Consider peer review of reporting before submission"
+      ],
+      "flow_diagram": {
+        "diagram_type": "PRISMA 2020 Flow Diagram",
+        "identification": {
+          "records_identified": 1247,
+          "registers_searched": 0
+        },
+        "screening": {
+          "records_screened": 856,
+          "records_excluded": 811
+        },
+        "eligibility": {
+          "full_text_assessed": 45,
+          "full_text_excluded": 40,
+          "exclusion_reasons": {
+            "wrong_population": 15,
+            "wrong_intervention": 12,
+            "wrong_outcome": 8,
+            "study_design": 5
+          }
+        },
+        "included": {
+          "studies_included": 5
+        },
+        "svg_data": "CiAgICAgICAgPHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjgwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgICAgICAgICAgPHJlY3QgeD0iNTAiIHk9IjUwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZTZmM2ZmIiBzdHJva2U9IiMwMDY2Y2MiIHN0cm9rZS13aWR0aD0iMiIvPgogICAgICAgICAgICA8dGV4dCB4PSIxNTAiIHk9Ijg1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEyIj5SZWNvcmRzIGlkZW50aWZpZWQ8L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTA1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCI+biA9IDEyNDc8L3RleHQ+CiAgICAgICAgICAgIAogICAgICAgICAgICA8cmVjdCB4PSI1MCIgeT0iMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZmZlNmU2IiBzdHJva2U9IiNjYzAwMDAiIHN0cm9rZS13aWR0aD0iMiIvPgogICAgICAgICAgICA8dGV4dCB4PSIxNTAiIHk9IjIzNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMiI+UmVjb3JkcyBzY3JlZW5lZDwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMTUwIiB5PSIyNTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIj5uID0gODU2PC90ZXh0PgogICAgICAgICAgICAKICAgICAgICAgICAgPHJlY3QgeD0iNTAiIHk9IjM1MCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSI4MCIgZmlsbD0iI2U2ZmZlNiIgc3Ryb2tlPSIjMDBjYzAwIiBzdHJva2Utd2lkdGg9IjIiLz4KICAgICAgICAgICAgPHRleHQgeD0iMTUwIiB5PSIzODUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTIiPkZ1bGwtdGV4dCBhc3Nlc3NlZDwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMTUwIiB5PSI0MDUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIj5uID0gNDU8L3RleHQ+CiAgICAgICAgICAgIAogICAgICAgICAgICA8cmVjdCB4PSI1MCIgeT0iNTAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZjBmMGYwIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIvPgogICAgICAgICAgICA8dGV4dCB4PSIxNTAiIHk9IjUzNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMiI+U3R1ZGllcyBpbmNsdWRlZDwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMTUwIiB5PSI1NTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIj5uID0gNTwvdGV4dD4KICAgICAgICAgICAgCiAgICAgICAgICAgIDwhLS0gQXJyb3dzIC0tPgogICAgICAgICAgICA8bGluZSB4MT0iMTUwIiB5MT0iMTMwIiB4Mj0iMTUwIiB5Mj0iMjAwIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvd2hlYWQpIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxNTAiIHkxPSIyODAiIHgyPSIxNTAiIHkyPSIzNTAiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93aGVhZCkiLz4KICAgICAgICAgICAgPGxpbmUgeDE9IjE1MCIgeTE9IjQzMCIgeDI9IjE1MCIgeTI9IjUwMCIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3doZWFkKSIvPgogICAgICAgICAgICAKICAgICAgICAgICAgPGRlZnM+CiAgICAgICAgICAgICAgICA8bWFya2VyIGlkPSJhcnJvd2hlYWQiIG1hcmtlcldpZHRoPSIxMCIgbWFya2VySGVpZ2h0PSI3IiByZWZYPSIxMCIgcmVmWT0iMy41IiBvcmllbnQ9ImF1dG8iPgogICAgICAgICAgICAgICAgICAgIDxwb2x5Z29uIHBvaW50cz0iMCAwLCAxMCAzLjUsIDAgNyIgZmlsbD0iIzAwMCIvPgogICAgICAgICAgICAgICAgPC9tYXJrZXI+CiAgICAgICAgICAgIDwvZGVmcz4KICAgICAgICA8L3N2Zz4KICAgICAgICA="
+      }
+    },
+    "perform_grade_assessment": {
+      "assessment_summary": {
+        "outcome": "Depression severity reduction",
+        "studies": 5,
+        "participants": 1074,
+        "study_design": "RCT",
+        "assessment_date": "2025-07-29T03:02:36.510512"
+      },
+      "domain_assessments": {
+        "risk_of_bias": {
+          "domain": "Risk of Bias",
+          "downgrade_points": 1,
+          "reasoning": "Some risk of bias concerns",
+          "confidence": "Medium"
+        },
+        "inconsistency": {
+          "domain": "Inconsistency",
+          "downgrade_points": 1,
+          "reasoning": "Moderate heterogeneity",
+          "confidence": "Medium"
+        },
+        "indirectness": {
+          "domain": "Indirectness",
+          "downgrade_points": 0,
+          "reasoning": "Assumed direct evidence",
+          "confidence": "Low"
+        },
+        "imprecision": {
+          "domain": "Imprecision",
+          "downgrade_points": 0,
+          "reasoning": "Adequate sample size",
+          "confidence": "High"
+        },
+        "publication_bias": {
+          "domain": "Publication Bias",
+          "downgrade_points": 0,
+          "reasoning": "Too few studies to assess publication bias",
+          "confidence": "Low"
+        }
+      },
+      "overall_certainty": "Low",
+      "certainty_rating": {
+        "initial_certainty": "High",
+        "final_certainty": "Low",
+        "total_downgrades": 2,
+        "interpretation": "Our confidence in the effect estimate is limited; the true effect may be substantially different from the estimate of the effect",
+        "implications": "Further research is very likely to have an important impact on our confidence in the estimate of effect and is likely to change the estimate"
+      },
+      "summary_of_findings": {
+        "outcome": "Depression severity reduction",
+        "studies_participants": "5 studies, 1074 participants",
+        "effect_estimate": -0.87,
+        "confidence_interval": "95% CI [-1.15, -0.59]",
+        "certainty_of_evidence": "Low",
+        "downgrade_reasons": [
+          "risk_of_bias: Some risk of bias concerns",
+          "inconsistency: Moderate heterogeneity"
+        ]
+      }
+    },
+    "generate_cochrane_report": {
+      "report_metadata": {
+        "title": "Psychological Interventions for Depression: A Systematic Review and Meta-Analysis",
+        "authors": [
+          "Devin AI",
+          "Meta-Analysis Research Team"
+        ],
+        "generation_date": "2025-07-29T03:02:36.510615",
+        "cochrane_compliance": true,
+        "format": "html"
+      },
+      "sections": {
+        "title_page": {
+          "title": "Psychological Interventions for Depression: A Systematic Review and Meta-Analysis",
+          "authors": [
+            "Devin AI",
+            "Meta-Analysis Research Team"
+          ],
+          "affiliation": "Cochrane Systematic Review",
+          "date": "July 2025",
+          "version": "1.0"
+        },
+        "abstract": {
+          "background": "Depression is a major public health concern requiring evidence-based treatments.",
+          "objectives": "To assess the effectiveness of psychological interventions for depression.",
+          "search_methods": "Comprehensive search of major databases",
+          "selection_criteria": "",
+          "data_collection": "Standardized data extraction forms",
+          "main_results": "Five studies with 1074 participants showed significant benefits.",
+          "authors_conclusions": "Strong evidence supports psychological interventions for depression."
+        },
+        "background": {
+          "description_of_condition": "Depression is a major public health concern requiring evidence-based treatments.",
+          "description_of_intervention": "Intervention details",
+          "how_intervention_works": "Mechanism of action",
+          "why_review_important": "Rationale for systematic review"
+        },
+        "objectives": {
+          "primary_objective": "To assess the effectiveness of psychological interventions for depression.",
+          "secondary_objectives": "Additional research questions",
+          "types_of_studies": "Study design criteria",
+          "types_of_participants": "Population criteria",
+          "types_of_interventions": "Intervention criteria",
+          "types_of_outcomes": "Outcome measures"
+        },
+        "methods": {
+          "criteria_for_studies": "",
+          "search_methods": "",
+          "data_collection": "",
+          "assessment_of_bias": "",
+          "measures_of_treatment": "Effect measures used",
+          "dealing_with_missing_data": "Missing data procedures",
+          "assessment_of_heterogeneity": "Heterogeneity assessment methods",
+          "data_synthesis": ""
+        },
+        "results": {
+          "description_of_studies": "Characteristics of included studies",
+          "risk_of_bias": "Risk of bias assessment results",
+          "effects_of_interventions": "",
+          "quantitative_synthesis": {
+            "meta_analysis_results": {
+              "method": "random",
+              "measure": "SMD",
+              "number_of_studies": 5,
+              "total_participants": 1074,
+              "pooled_effect": -0.8804438234362243,
+              "standard_error": 0.06525558206463102,
+              "ci_lower": -1.008342414073099,
+              "ci_upper": -0.7525452327993496,
+              "z_statistic": -13.492237684190867,
+              "p_value": 0.0,
+              "significant": "True"
+            },
+            "heterogeneity_assessment": {
+              "Q_statistic": 0.7754728039750483,
+              "degrees_of_freedom": 4,
+              "p_heterogeneity": 0.9417057033431677,
+              "I_squared": 0.0,
+              "tau_squared": 0.0,
+              "interpretation": "Low heterogeneity"
+            },
+            "publication_bias": "Publication bias assessment results"
+          }
+        },
+        "discussion": {
+          "summary_of_findings": "Key findings summary",
+          "overall_completeness": "Completeness of evidence",
+          "quality_of_evidence": "Quality assessment",
+          "potential_biases": "Limitations and biases",
+          "agreements_disagreements": "Comparison with other reviews",
+          "implications_for_practice": "Clinical implications",
+          "implications_for_research": "Research implications"
+        },
+        "conclusions": {
+          "implications_for_practice": "Practice recommendations",
+          "implications_for_research": "Future research needs",
+          "main_conclusions": "Strong evidence supports psychological interventions for depression."
+        },
+        "references": {
+          "included_studies": "References to included studies",
+          "excluded_studies": "References to excluded studies",
+          "additional_references": [
+            "Smith et al. 2020",
+            "Garcia et al. 2019",
+            "Chen et al. 2021"
+          ]
+        }
+      },
+      "appendices": {
+        "risk_of_bias": {
+          "title": "Risk of Bias Assessment",
+          "summary_table": {
+            "randomization": {
+              "low_risk": 3,
+              "some_concerns": 2,
+              "high_risk": 0,
+              "percentage_low": 60.0,
+              "percentage_high": 0.0
+            },
+            "deviations": {
+              "low_risk": 1,
+              "some_concerns": 4,
+              "high_risk": 0,
+              "percentage_low": 20.0,
+              "percentage_high": 0.0
+            },
+            "missing_outcome_data": {
+              "low_risk": 5,
+              "some_concerns": 0,
+              "high_risk": 0,
+              "percentage_low": 100.0,
+              "percentage_high": 0.0
+            },
+            "outcome_measurement": {
+              "low_risk": 0,
+              "some_concerns": 5,
+              "high_risk": 0,
+              "percentage_low": 0.0,
+              "percentage_high": 0.0
+            },
+            "selective_reporting": {
+              "low_risk": 0,
+              "some_concerns": 5,
+              "high_risk": 0,
+              "percentage_low": 0.0,
+              "percentage_high": 0.0
+            }
+          },
+          "individual_assessments": [
+            {
+              "study_id": "Smith2020_CBT",
+              "title": "Cognitive Behavioral Therapy for Major Depression: A Randomized Trial",
+              "domain_assessments": {
+                "randomization": {
+                  "risk_level": "Low",
+                  "reasoning": "Adequate randomization method described",
+                  "confidence": "High",
+                  "signaling_questions": [
+                    "Was the allocation sequence random?",
+                    "Was the allocation sequence concealed until participants were enrolled and assigned?"
+                  ]
+                },
+                "deviations": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Partial blinding may affect adherence",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                },
+                "missing_outcome_data": {
+                  "risk_level": "Low",
+                  "reasoning": "Low attrition rate (0.12%)",
+                  "confidence": "High",
+                  "signaling_questions": []
+                },
+                "outcome_measurement": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                },
+                "selective_reporting": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                }
+              },
+              "overall_risk": "Some concerns"
+            },
+            {
+              "study_id": "Garcia2019_MBCT",
+              "title": "Mindfulness-Based Cognitive Therapy vs Waitlist Control",
+              "domain_assessments": {
+                "randomization": {
+                  "risk_level": "Low",
+                  "reasoning": "Adequate randomization method described",
+                  "confidence": "High",
+                  "signaling_questions": [
+                    "Was the allocation sequence random?",
+                    "Was the allocation sequence concealed until participants were enrolled and assigned?"
+                  ]
+                },
+                "deviations": {
+                  "risk_level": "Low",
+                  "reasoning": "Adequate blinding described",
+                  "confidence": "High",
+                  "signaling_questions": []
+                },
+                "missing_outcome_data": {
+                  "risk_level": "Low",
+                  "reasoning": "Low attrition rate (0.08%)",
+                  "confidence": "High",
+                  "signaling_questions": []
+                },
+                "outcome_measurement": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                },
+                "selective_reporting": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                }
+              },
+              "overall_risk": "Some concerns"
+            },
+            {
+              "study_id": "Chen2021_IPT",
+              "title": "Interpersonal Therapy for Depression: Efficacy Trial",
+              "domain_assessments": {
+                "randomization": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": [
+                    "Was the allocation sequence random?",
+                    "Was the allocation sequence concealed until participants were enrolled and assigned?"
+                  ]
+                },
+                "deviations": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Partial blinding may affect adherence",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                },
+                "missing_outcome_data": {
+                  "risk_level": "Low",
+                  "reasoning": "Low attrition rate (0.15%)",
+                  "confidence": "High",
+                  "signaling_questions": []
+                },
+                "outcome_measurement": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                },
+                "selective_reporting": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                }
+              },
+              "overall_risk": "Some concerns"
+            },
+            {
+              "study_id": "Brown2018_BA",
+              "title": "Behavioral Activation vs Treatment as Usual",
+              "domain_assessments": {
+                "randomization": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": [
+                    "Was the allocation sequence random?",
+                    "Was the allocation sequence concealed until participants were enrolled and assigned?"
+                  ]
+                },
+                "deviations": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                },
+                "missing_outcome_data": {
+                  "risk_level": "Low",
+                  "reasoning": "Low attrition rate (0.22%)",
+                  "confidence": "High",
+                  "signaling_questions": []
+                },
+                "outcome_measurement": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                },
+                "selective_reporting": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                }
+              },
+              "overall_risk": "Some concerns"
+            },
+            {
+              "study_id": "Taylor2022_ACT",
+              "title": "Acceptance and Commitment Therapy for Depression",
+              "domain_assessments": {
+                "randomization": {
+                  "risk_level": "Low",
+                  "reasoning": "Adequate randomization method described",
+                  "confidence": "High",
+                  "signaling_questions": [
+                    "Was the allocation sequence random?",
+                    "Was the allocation sequence concealed until participants were enrolled and assigned?"
+                  ]
+                },
+                "deviations": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Partial blinding may affect adherence",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                },
+                "missing_outcome_data": {
+                  "risk_level": "Low",
+                  "reasoning": "Low attrition rate (0.1%)",
+                  "confidence": "High",
+                  "signaling_questions": []
+                },
+                "outcome_measurement": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                },
+                "selective_reporting": {
+                  "risk_level": "Some concerns",
+                  "reasoning": "Automated assessment based on available information",
+                  "confidence": "Low",
+                  "signaling_questions": []
+                }
+              },
+              "overall_risk": "Some concerns"
+            }
+          ],
+          "traffic_light_plot": {
+            "plot_type": "traffic_light",
+            "data_matrix": [
+              {
+                "study_id": "Smith2020_CBT",
+                "domains": {
+                  "randomization": "Low",
+                  "deviations": "Some concerns",
+                  "missing_outcome_data": "Low",
+                  "outcome_measurement": "Some concerns",
+                  "selective_reporting": "Some concerns"
+                }
+              },
+              {
+                "study_id": "Garcia2019_MBCT",
+                "domains": {
+                  "randomization": "Low",
+                  "deviations": "Low",
+                  "missing_outcome_data": "Low",
+                  "outcome_measurement": "Some concerns",
+                  "selective_reporting": "Some concerns"
+                }
+              },
+              {
+                "study_id": "Chen2021_IPT",
+                "domains": {
+                  "randomization": "Some concerns",
+                  "deviations": "Some concerns",
+                  "missing_outcome_data": "Low",
+                  "outcome_measurement": "Some concerns",
+                  "selective_reporting": "Some concerns"
+                }
+              },
+              {
+                "study_id": "Brown2018_BA",
+                "domains": {
+                  "randomization": "Some concerns",
+                  "deviations": "Some concerns",
+                  "missing_outcome_data": "Low",
+                  "outcome_measurement": "Some concerns",
+                  "selective_reporting": "Some concerns"
+                }
+              },
+              {
+                "study_id": "Taylor2022_ACT",
+                "domains": {
+                  "randomization": "Low",
+                  "deviations": "Some concerns",
+                  "missing_outcome_data": "Low",
+                  "outcome_measurement": "Some concerns",
+                  "selective_reporting": "Some concerns"
+                }
+              }
+            ],
+            "color_coding": {
+              "Low": "#00FF00",
+              "Some concerns": "#FFFF00",
+              "High": "#FF0000"
+            }
+          }
+        },
+        "prisma_checklist": {
+          "title": "PRISMA 2020 Checklist",
+          "compliance_score": {
+            "compliant_items": 3,
+            "total_items": 27,
+            "percentage": 11.11111111111111,
+            "grade": "D (Poor)",
+            "interpretation": "Poor PRISMA compliance - major revisions needed before publication"
+          },
+          "item_assessments": {
+            "1": {
+              "item_number": "1",
+              "section": "Title",
+              "description": "Identify the report as a systematic review",
+              "compliant": true,
+              "evidence": "Title identifies report as systematic review",
+              "confidence": "High"
+            },
+            "2": {
+              "item_number": "2",
+              "section": "Abstract - Background",
+              "description": "Provide structured summary including background",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "3": {
+              "item_number": "3",
+              "section": "Abstract - Objectives",
+              "description": "Provide structured summary including objectives",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "4": {
+              "item_number": "4",
+              "section": "Abstract - Methods",
+              "description": "Provide structured summary including methods",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "5": {
+              "item_number": "5",
+              "section": "Abstract - Results",
+              "description": "Provide structured summary including results",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "6": {
+              "item_number": "6",
+              "section": "Abstract - Conclusions",
+              "description": "Provide structured summary including conclusions",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "7": {
+              "item_number": "7",
+              "section": "Abstract - Registration",
+              "description": "Provide registration information",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "8": {
+              "item_number": "8",
+              "section": "Introduction - Rationale",
+              "description": "Describe rationale for review",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "9": {
+              "item_number": "9",
+              "section": "Introduction - Objectives",
+              "description": "Provide explicit statement of objectives",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "10": {
+              "item_number": "10",
+              "section": "Methods - Eligibility criteria",
+              "description": "Specify inclusion and exclusion criteria",
+              "compliant": true,
+              "evidence": "Inclusion/exclusion criteria provided",
+              "confidence": "High"
+            },
+            "11": {
+              "item_number": "11",
+              "section": "Methods - Information sources",
+              "description": "Describe all information sources",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "12": {
+              "item_number": "12",
+              "section": "Methods - Search strategy",
+              "description": "Present full search strategies",
+              "compliant": true,
+              "evidence": "Search strategy provided",
+              "confidence": "High"
+            },
+            "13": {
+              "item_number": "13",
+              "section": "Methods - Selection process",
+              "description": "Describe methods of study selection",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "14": {
+              "item_number": "14",
+              "section": "Methods - Data collection",
+              "description": "Describe methods of data extraction",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "15": {
+              "item_number": "15",
+              "section": "Methods - Data items",
+              "description": "List and define all variables",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "16": {
+              "item_number": "16",
+              "section": "Methods - Study risk of bias",
+              "description": "Describe methods for assessing risk of bias",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "17": {
+              "item_number": "17",
+              "section": "Methods - Effect measures",
+              "description": "Specify for each outcome the effect measure",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "18": {
+              "item_number": "18",
+              "section": "Methods - Synthesis methods",
+              "description": "Describe processes used to decide whether to meta-analyse",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "19": {
+              "item_number": "19",
+              "section": "Methods - Reporting bias",
+              "description": "Describe any methods used to assess risk of bias",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "20": {
+              "item_number": "20",
+              "section": "Methods - Certainty assessment",
+              "description": "Describe methods used to assess certainty",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "21": {
+              "item_number": "21",
+              "section": "Results - Study selection",
+              "description": "Give numbers of studies screened and included",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "22": {
+              "item_number": "22",
+              "section": "Results - Study characteristics",
+              "description": "Cite each included study and present characteristics",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "23": {
+              "item_number": "23",
+              "section": "Results - Risk of bias",
+              "description": "Present assessments of risk of bias for each study",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "24": {
+              "item_number": "24",
+              "section": "Results - Results of individual studies",
+              "description": "For all outcomes present summary statistics",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "25": {
+              "item_number": "25",
+              "section": "Results - Results of syntheses",
+              "description": "Present results of each meta-analysis",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "26": {
+              "item_number": "26",
+              "section": "Results - Reporting biases",
+              "description": "Present assessments of risk of bias due to missing results",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            },
+            "27": {
+              "item_number": "27",
+              "section": "Results - Certainty of evidence",
+              "description": "Present assessments of certainty for each outcome",
+              "compliant": false,
+              "evidence": "",
+              "confidence": "Low"
+            }
+          },
+          "flow_diagram": {
+            "diagram_type": "PRISMA 2020 Flow Diagram",
+            "identification": {
+              "records_identified": 1247,
+              "registers_searched": 0
+            },
+            "screening": {
+              "records_screened": 856,
+              "records_excluded": 811
+            },
+            "eligibility": {
+              "full_text_assessed": 45,
+              "full_text_excluded": 40,
+              "exclusion_reasons": {
+                "wrong_population": 15,
+                "wrong_intervention": 12,
+                "wrong_outcome": 8,
+                "study_design": 5
+              }
+            },
+            "included": {
+              "studies_included": 5
+            },
+            "svg_data": "CiAgICAgICAgPHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjgwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgICAgICAgICAgPHJlY3QgeD0iNTAiIHk9IjUwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZTZmM2ZmIiBzdHJva2U9IiMwMDY2Y2MiIHN0cm9rZS13aWR0aD0iMiIvPgogICAgICAgICAgICA8dGV4dCB4PSIxNTAiIHk9Ijg1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEyIj5SZWNvcmRzIGlkZW50aWZpZWQ8L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTA1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCI+biA9IDEyNDc8L3RleHQ+CiAgICAgICAgICAgIAogICAgICAgICAgICA8cmVjdCB4PSI1MCIgeT0iMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZmZlNmU2IiBzdHJva2U9IiNjYzAwMDAiIHN0cm9rZS13aWR0aD0iMiIvPgogICAgICAgICAgICA8dGV4dCB4PSIxNTAiIHk9IjIzNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMiI+UmVjb3JkcyBzY3JlZW5lZDwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMTUwIiB5PSIyNTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIj5uID0gODU2PC90ZXh0PgogICAgICAgICAgICAKICAgICAgICAgICAgPHJlY3QgeD0iNTAiIHk9IjM1MCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSI4MCIgZmlsbD0iI2U2ZmZlNiIgc3Ryb2tlPSIjMDBjYzAwIiBzdHJva2Utd2lkdGg9IjIiLz4KICAgICAgICAgICAgPHRleHQgeD0iMTUwIiB5PSIzODUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTIiPkZ1bGwtdGV4dCBhc3Nlc3NlZDwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMTUwIiB5PSI0MDUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIj5uID0gNDU8L3RleHQ+CiAgICAgICAgICAgIAogICAgICAgICAgICA8cmVjdCB4PSI1MCIgeT0iNTAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZjBmMGYwIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIvPgogICAgICAgICAgICA8dGV4dCB4PSIxNTAiIHk9IjUzNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMiI+U3R1ZGllcyBpbmNsdWRlZDwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMTUwIiB5PSI1NTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIj5uID0gNTwvdGV4dD4KICAgICAgICAgICAgCiAgICAgICAgICAgIDwhLS0gQXJyb3dzIC0tPgogICAgICAgICAgICA8bGluZSB4MT0iMTUwIiB5MT0iMTMwIiB4Mj0iMTUwIiB5Mj0iMjAwIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvd2hlYWQpIi8+CiAgICAgICAgICAgIDxsaW5lIHgxPSIxNTAiIHkxPSIyODAiIHgyPSIxNTAiIHkyPSIzNTAiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93aGVhZCkiLz4KICAgICAgICAgICAgPGxpbmUgeDE9IjE1MCIgeTE9IjQzMCIgeDI9IjE1MCIgeTI9IjUwMCIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3doZWFkKSIvPgogICAgICAgICAgICAKICAgICAgICAgICAgPGRlZnM+CiAgICAgICAgICAgICAgICA8bWFya2VyIGlkPSJhcnJvd2hlYWQiIG1hcmtlcldpZHRoPSIxMCIgbWFya2VySGVpZ2h0PSI3IiByZWZYPSIxMCIgcmVmWT0iMy41IiBvcmllbnQ9ImF1dG8iPgogICAgICAgICAgICAgICAgICAgIDxwb2x5Z29uIHBvaW50cz0iMCAwLCAxMCAzLjUsIDAgNyIgZmlsbD0iIzAwMCIvPgogICAgICAgICAgICAgICAgPC9tYXJrZXI+CiAgICAgICAgICAgIDwvZGVmcz4KICAgICAgICA8L3N2Zz4KICAgICAgICA="
+          }
+        },
+        "grade_assessment": {
+          "title": "GRADE Evidence Assessment",
+          "summary_of_findings": {
+            "outcome": "Depression severity reduction",
+            "studies_participants": "5 studies, 1074 participants",
+            "effect_estimate": -0.87,
+            "confidence_interval": "95% CI [-1.15, -0.59]",
+            "certainty_of_evidence": "Low",
+            "downgrade_reasons": [
+              "risk_of_bias: Some risk of bias concerns",
+              "inconsistency: Moderate heterogeneity"
+            ]
+          },
+          "certainty_ratings": {
+            "initial_certainty": "High",
+            "final_certainty": "Low",
+            "total_downgrades": 2,
+            "interpretation": "Our confidence in the effect estimate is limited; the true effect may be substantially different from the estimate of the effect",
+            "implications": "Further research is very likely to have an important impact on our confidence in the estimate of effect and is likely to change the estimate"
+          },
+          "domain_assessments": {
+            "risk_of_bias": {
+              "domain": "Risk of Bias",
+              "downgrade_points": 1,
+              "reasoning": "Some risk of bias concerns",
+              "confidence": "Medium"
+            },
+            "inconsistency": {
+              "domain": "Inconsistency",
+              "downgrade_points": 1,
+              "reasoning": "Moderate heterogeneity",
+              "confidence": "Medium"
+            },
+            "indirectness": {
+              "domain": "Indirectness",
+              "downgrade_points": 0,
+              "reasoning": "Assumed direct evidence",
+              "confidence": "Low"
+            },
+            "imprecision": {
+              "domain": "Imprecision",
+              "downgrade_points": 0,
+              "reasoning": "Adequate sample size",
+              "confidence": "High"
+            },
+            "publication_bias": {
+              "domain": "Publication Bias",
+              "downgrade_points": 0,
+              "reasoning": "Too few studies to assess publication bias",
+              "confidence": "Low"
+            }
+          }
+        }
+      },
+      "compliance_indicators": {
+        "cochrane_handbook_compliance": true,
+        "prisma_compliance": 11.11111111111111,
+        "grade_assessment_included": true,
+        "rob_assessment_included": true,
+        "overall_quality_score": 64.44444444444444
+      },
+      "formatted_output": "\n        <!DOCTYPE html>\n        <html>\n        <head>\n            <title></title>\n            <style>\n                body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }\n                h1 { color: #2c3e50; border-bottom: 2px solid #3498db; }\n                h2 { color: #34495e; margin-top: 30px; }\n                h3 { color: #7f8c8d; }\n                .abstract { background: #ecf0f1; padding: 20px; margin: 20px 0; }\n                .compliance-badge { background: #27ae60; color: white; padding: 5px 10px; border-radius: 5px; }\n                .section { margin: 30px 0; }\n                table { width: 100%; border-collapse: collapse; margin: 20px 0; }\n                th, td { border: 1px solid #bdc3c7; padding: 10px; text-align: left; }\n                th { background: #3498db; color: white; }\n            </style>\n        </head>\n        <body>\n            <h1>Psychological Interventions for Depression: A Systematic Review and Meta-Analysis</h1>\n            <p><strong>Authors:</strong> Devin AI, Meta-Analysis Research Team</p>\n            <p><strong>Date:</strong> July 2025</p>\n            <span class=\"compliance-badge\">Cochrane Compliant</span>\n            \n            <div class=\"section\">\n                <h2>Abstract</h2>\n                <div class=\"abstract\">\n                    <h3>Background</h3>\n                    <p>Depression is a major public health concern requiring evidence-based treatments.</p>\n                    <h3>Objectives</h3>\n                    <p>To assess the effectiveness of psychological interventions for depression.</p>\n                    <h3>Main Results</h3>\n                    <p>Five studies with 1074 participants showed significant benefits.</p>\n                    <h3>Authors' Conclusions</h3>\n                    <p>Strong evidence supports psychological interventions for depression.</p>\n                </div>\n            </div>\n            \n            <div class=\"section\">\n                <h2>Background</h2>\n                <p>Depression is a major public health concern requiring evidence-based treatments.</p>\n            </div>\n            \n            <div class=\"section\">\n                <h2>Objectives</h2>\n                <p>To assess the effectiveness of psychological interventions for depression.</p>\n            </div>\n            \n            <div class=\"section\">\n                <h2>Results</h2>\n                <p></p>\n            </div>\n            \n            <div class=\"section\">\n                <h2>Conclusions</h2>\n                <p>Strong evidence supports psychological interventions for depression.</p>\n            </div>\n            \n            <div class=\"section\">\n                <h2>Compliance Summary</h2>\n                <p><strong>Overall Quality Score:</strong> 64.4%</p>\n                <p><strong>PRISMA Compliance:</strong> 11.1%</p>\n                <p><strong>GRADE Assessment:</strong> Included</p>\n                <p><strong>Risk of Bias Assessment:</strong> Included</p>\n            </div>\n        </body>\n        </html>\n        "
+    }
+  },
+  "tools_successful": 6,
+  "tools_total": 11,
+  "success_rate": 54.54545454545454,
+  "deployment_status": "APPROVED"
+}

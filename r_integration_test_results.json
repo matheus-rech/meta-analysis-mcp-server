@@ -1,0 +1,46 @@
+{
+  "timestamp": "2025-01-29T02:36:14Z",
+  "r_version": null,
+  "tests": {
+    "meta_analysis": {
+      "success": true,
+      "output": {
+        "estimate": -0.468,
+        "se": 0.0713,
+        "ci_lower": -0.6078,
+        "ci_upper": -0.3282,
+        "z_value": -6.5629,
+        "p_value": 5.2782e-11,
+        "tau_squared": 0.0039,
+        "i_squared": 15.1768,
+        "h_squared": 1.1789,
+        "q_statistic": 4.575,
+        "q_df": 4,
+        "q_p_value": 0.3337
+      }
+    },
+    "publication_bias": {
+      "success": true,
+      "output": {
+        "egger_test": {
+          "statistic": -2.1175,
+          "p_value": 0.0342,
+          "significant": true
+        },
+        "begg_test": {
+          "statistic": -1,
+          "p_value": 0.0167,
+          "significant": true
+        },
+        "interpretation": "Significant asymmetry detected"
+      }
+    },
+    "forest_plot": {
+      "success": false,
+      "output": null
+    }
+  },
+  "success_rate": "2/3",
+  "percentage": 66.7,
+  "conclusion": "Partial R integration - core functions operational"
+}

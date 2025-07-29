@@ -4,6 +4,7 @@ import asyncio
 import json
 import logging
 from typing import Any, Dict, List, Optional, Union, Sequence
+from types import SimpleNamespace
 
 # Handle MCP import gracefully for development
 try:
@@ -401,7 +402,11 @@ class MetaAnalysisServer:
                     server_name="meta-analysis-mcp-server",
                     server_version="1.0.0",
                     capabilities=self.server.get_capabilities(
-                        notification_options=None,
+                        notification_options=SimpleNamespace(
+                            tools_changed=True,
+                            resources_changed=True,
+                            prompts_changed=True
+                        ),
                         experimental_capabilities=None,
                     ),
                 ),
