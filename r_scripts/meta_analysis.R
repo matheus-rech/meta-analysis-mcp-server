@@ -10,9 +10,43 @@
 suppressMessages({
   library(jsonlite)
   library(metafor)
-  library(meta)
   library(ggplot2)
 })
+
+# Function to assess publication bias
+assess_publication_bias <- function(effect_sizes, standard_errors, study_ids) {
+  tryCatch({
+    # Create meta-analysis object
+    ma_result <- rma(yi = effect_sizes, sei = standard_errors, 
+                     slab = study_ids, method = "REML")
+    
+    # Egger's test using metafor
+    egger_test <- regtest(ma_result, model = "lm")
+    
+    # Begg's test (rank correlation) using metafor
+    begg_test <- ranktest(ma_result)
+    
+    # Results
+    bias_results <- list(
+      egger_test = list(
+        statistic = as.numeric(egger_test$zval),
+        p_value = as.numeric(egger_test$pval),
+        method = "Egger's linear regression test"
+      ),
+      begg_test = list(
+        statistic = as.numeric(begg_test$tau),
+        p_value = as.numeric(begg_test$pval),
+        method = "Begg's rank correlation test"
+      ),
+      interpretation = if(egger_test$pval < alpha) "Significant publication bias detected" else "No significant publication bias detected"
+    )
+    
+    return(toJSON(bias_results, auto_unbox = TRUE))
+    
+  }, error = function(e) {
+    return(toJSON(list(error = paste("Publication bias assessment failed:", e$message)), auto_unbox = TRUE))
+  })
+}
 
 # Function to perform meta-analysis
 perform_meta_analysis <- function(effect_sizes, standard_errors, study_ids, method = "REML") {
@@ -79,10 +113,27 @@ assess_publication_bias <- function(effect_sizes, standard_errors, study_ids) {
 
 # Function to create forest plot data
 create_forest_plot_data <- function(effect_sizes, standard_errors, study_ids, 
-                                   ci_lower, ci_upper, weights) {
+                                   ci_lower = NULL, ci_upper = NULL, weights = NULL) {
   tryCatch({
+    # Calculate confidence intervals if not provided
+    if (is.null(ci_lower)) {
+      ci_lower <- effect_sizes - 1.96 * standard_errors
+    }
+    if (is.null(ci_upper)) {
+      ci_upper <- effect_sizes + 1.96 * standard_errors
+    }
+    
+    # Calculate weights if not provided (inverse variance)
+    if (is.null(weights)) {
+      weights <- 1 / (standard_errors^2)
+    }
+    
+    # Perform meta-analysis to get overall effect
+    ma_result <- rma(yi = effect_sizes, sei = standard_errors, 
+                     slab = study_ids, method = "REML")
+    
     # Prepare data for forest plot
-    plot_data <- data.frame(
+    studies_data <- data.frame(
       study = study_ids,
       effect = effect_sizes,
       se = standard_errors,
@@ -91,7 +142,15 @@ create_forest_plot_data <- function(effect_sizes, standard_errors, study_ids,
       weight = weights
     )
     
-    return(toJSON(plot_data, auto_unbox = FALSE))
+    result <- list(
+      studies = studies_data,
+      overall_effect = as.numeric(ma_result$beta),
+      overall_ci_lower = as.numeric(ma_result$ci.lb),
+      overall_ci_upper = as.numeric(ma_result$ci.ub),
+      n_studies = length(study_ids)
+    )
+    
+    return(toJSON(result, auto_unbox = FALSE))
     
   }, error = function(e) {
     return(toJSON(list(error = paste("Forest plot data creation failed:", e$message)), auto_unbox = TRUE))
@@ -233,41 +292,38 @@ perform_meta_analysis_file <- function(data_file, output_dir, method = "random",
       stop(paste("Missing required columns:", paste(setdiff(required_cols, colnames(data)), collapse = ", ")))
     }
     
-    # Perform meta-analysis using meta package
+    # Perform meta-analysis using metafor package
     if (measure == "OR" && all(c("events_treatment", "n_treatment", "events_control", "n_control") %in% colnames(data))) {
       # Binary outcome meta-analysis
-      meta_method <- if(method == "random") "Inverse" else "MH"
-      meta_result <- metabin(
-        event.e = data$events_treatment,
-        n.e = data$n_treatment,
-        event.c = data$events_control,
-        n.c = data$n_control,
-        studlab = data$study_id,
-        method = meta_method,
-        sm = "OR"
+      meta_result <- rma.mh(
+        ai = data$events_treatment,
+        n1i = data$n_treatment,
+        ci = data$events_control,
+        n2i = data$n_control,
+        slab = data$study_id,
+        measure = "OR"
       )
     } else {
       # Generic inverse variance meta-analysis
-      meta_result <- metagen(
-        TE = log(data$effect_size),
-        seTE = data$se,
-        studlab = data$study_id,
-        method.tau = if(method == "random") "REML" else "FE",
-        sm = measure
+      meta_result <- rma(
+        yi = data$effect_size,
+        sei = data$se,
+        slab = data$study_id,
+        method = if(method == "random") "REML" else "FE"
       )
     }
     
     # Extract results
     results <- list(
-      pooled_effect = exp(meta_result$TE.random),
-      pooled_effect_log = meta_result$TE.random,
-      se_pooled = meta_result$seTE.random,
-      confidence_interval = paste0("[", round(exp(meta_result$lower.random), 3), ", ", round(exp(meta_result$upper.random), 3), "]"),
-      p_value = meta_result$pval.random,
-      heterogeneity_tau2 = meta_result$tau2,
-      heterogeneity_i2 = paste0(round(meta_result$I2 * 100, 1), "%"),
-      heterogeneity_q = meta_result$Q,
-      heterogeneity_p = meta_result$pval.Q,
+      pooled_effect = as.numeric(meta_result$beta),
+      pooled_effect_log = as.numeric(meta_result$beta),
+      se_pooled = as.numeric(meta_result$se),
+      confidence_interval = paste0("[", round(meta_result$ci.lb, 3), ", ", round(meta_result$ci.ub, 3), "]"),
+      p_value = as.numeric(meta_result$pval),
+      heterogeneity_tau2 = as.numeric(meta_result$tau2),
+      heterogeneity_i2 = paste0(round(meta_result$I2, 1), "%"),
+      heterogeneity_q = as.numeric(meta_result$QE),
+      heterogeneity_p = as.numeric(meta_result$QEp),
       n_studies = meta_result$k
     )
     
@@ -365,22 +421,22 @@ assess_publication_bias_file <- function(meta_object_file, output_dir) {
     # Load meta-analysis object
     meta_result <- readRDS(meta_object_file)
     
-    # Egger's test
-    egger_test <- metabias(meta_result, method = "linreg")
+    # Egger's test using metafor
+    egger_test <- regtest(meta_result, model = "lm")
     
-    # Begg's test (rank correlation)
-    begg_test <- metabias(meta_result, method = "rank")
+    # Begg's test (rank correlation) using metafor
+    begg_test <- ranktest(meta_result)
     
     # Results
     bias_results <- list(
       egger_test = list(
-        statistic = egger_test$statistic,
-        p_value = egger_test$p.value,
+        statistic = as.numeric(egger_test$zval),
+        p_value = as.numeric(egger_test$pval),
         method = "Egger's linear regression test"
       ),
       begg_test = list(
-        statistic = begg_test$statistic,
-        p_value = begg_test$p.value,
+        statistic = as.numeric(begg_test$tau),
+        p_value = as.numeric(begg_test$pval),
         method = "Begg's rank correlation test"
       )
     )
@@ -433,10 +489,12 @@ if (!interactive()) {
     
   } else if (func_name == "create_forest_plot_data") {
     input_data <- fromJSON(args[2])
+    # Handle both study_ids and study_names
+    study_labels <- if(!is.null(input_data$study_ids)) input_data$study_ids else input_data$study_names
     result <- create_forest_plot_data(
       input_data$effect_sizes,
       input_data$standard_errors,
-      input_data$study_ids,
+      study_labels,
       input_data$ci_lower,
       input_data$ci_upper,
       input_data$weights
