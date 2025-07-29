@@ -386,7 +386,7 @@ class MetaAnalysisServer:
                 else:
                     raise ValueError(f"Unknown tool: {name}")
 
-                if hasattr(result, 'model_dump'):
+                if hasattr(result, 'model_dump') and callable(getattr(result, 'model_dump')):
                     result_dict = result.model_dump()
                 elif hasattr(result, '__dict__'):
                     result_dict = {

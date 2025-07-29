@@ -68,10 +68,10 @@ class CochraneComplianceTools:
 
     async def assess_risk_of_bias(
         self,
-        studies: List[Dict[str, Any]] = None,
-        session_id: str = None,
+        studies: Optional[List[Dict[str, Any]]] = None,
+        session_id: Optional[str] = None,
         assessment_mode: str = "hybrid",
-        domains: List[str] = None
+        domains: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Perform Cochrane ROB 2.0 risk of bias assessment.
@@ -86,7 +86,7 @@ class CochraneComplianceTools:
             Risk of bias assessment results
         """
         try:
-            if session_id and hasattr(self, 'meta_tools') and session_id in self.meta_tools.sessions:
+            if session_id and hasattr(self, 'meta_tools') and self.meta_tools and session_id in self.meta_tools.sessions:
                 studies = self.meta_tools.sessions[session_id]["studies"]
             elif not studies:
                 raise ValueError("Either studies list or valid session_id must be provided")
@@ -367,8 +367,8 @@ class CochraneComplianceTools:
 
     async def generate_prisma_checklist(
         self,
-        review_data: Dict[str, Any] = None,
-        session_id: str = None,
+        review_data: Optional[Dict[str, Any]] = None,
+        session_id: Optional[str] = None,
         generate_flow_diagram: bool = True,
         screening_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
@@ -665,8 +665,8 @@ class CochraneComplianceTools:
 
     async def perform_grade_assessment(
         self,
-        evidence_profile: Dict[str, Any] = None,
-        session_id: str = None,
+        evidence_profile: Optional[Dict[str, Any]] = None,
+        session_id: Optional[str] = None,
         assessment_criteria: Optional[Dict[str, bool]] = None
     ) -> Dict[str, Any]:
         """
@@ -942,8 +942,8 @@ class CochraneComplianceTools:
 
     async def generate_cochrane_report(
         self,
-        review_metadata: Dict[str, Any] = None,
-        session_id: str = None,
+        review_metadata: Optional[Dict[str, Any]] = None,
+        session_id: Optional[str] = None,
         analysis_results: Optional[Dict[str, Any]] = None,
         rob_assessment: Optional[Dict[str, Any]] = None,
         prisma_checklist: Optional[Dict[str, Any]] = None,

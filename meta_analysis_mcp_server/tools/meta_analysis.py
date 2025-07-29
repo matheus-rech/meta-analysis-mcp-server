@@ -82,8 +82,8 @@ class MetaAnalysisTools:
 
     async def perform_meta_analysis(
         self,
-        studies: List[Dict[str, Any]] = None,
-        session_id: str = None,
+        studies: Optional[List[Dict[str, Any]]] = None,
+        session_id: Optional[str] = None,
         method: str = "random",
         measure: str = "SMD"
     ) -> ToolResponse:
@@ -388,8 +388,8 @@ class MetaAnalysisTools:
 
     async def assess_heterogeneity(
         self,
-        studies: List[Dict[str, Any]] = None,
-        session_id: str = None
+        studies: Optional[List[Dict[str, Any]]] = None,
+        session_id: Optional[str] = None
     ) -> ToolResponse:
         """
         Assess between-study heterogeneity using R.
@@ -626,7 +626,7 @@ class MetaAnalysisTools:
                 funnel_plot = {
                     "plot_data": plot_data,
                     "format": "png",
-                    "interpretation": self._interpret_funnel_plot_symmetry(effect_sizes, standard_errors)
+                    "interpretation": self._interpret_funnel_plot_symmetry(np.array(effect_sizes), np.array(standard_errors))
                 }
             else:
                 # Use R-generated funnel plot

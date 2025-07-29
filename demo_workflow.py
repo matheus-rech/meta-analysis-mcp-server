@@ -102,6 +102,7 @@ async def demo_complete_workflow():
             effect_measure="SMD"
         )
         session_id = init_result.get('session_id') if isinstance(init_result, dict) else getattr(init_result, 'data', {}).get('session_id', 'demo-session')
+        session_id = str(session_id) if session_id is not None else "demo-session"
         print(f"✅ Session initialized: {session_id}")
     except Exception as e:
         print(f"❌ Session initialization failed: {e}")
@@ -136,11 +137,11 @@ async def demo_complete_workflow():
             i_squared = ma_result.get('heterogeneity', {}).get('I_squared', 0)
         else:
             data = getattr(ma_result, 'data', {})
-            if hasattr(data, 'pooled_effect_size'):
-                effect_size = data.pooled_effect_size
-                ci_lower = data.confidence_interval.lower if hasattr(data, 'confidence_interval') else 0
-                ci_upper = data.confidence_interval.upper if hasattr(data, 'confidence_interval') else 0
-                i_squared = data.heterogeneity.i_squared if hasattr(data, 'heterogeneity') else 0
+            if isinstance(data, dict) and 'pooled_effect_size' in data:
+                effect_size = data['pooled_effect_size']
+                ci_lower = data.get('confidence_interval', {}).get('lower', 0)
+                ci_upper = data.get('confidence_interval', {}).get('upper', 0)
+                i_squared = data.get('heterogeneity', {}).get('i_squared', 0)
             else:
                 effect_size = data.get('meta_analysis_results', {}).get('pooled_effect', 0)
                 ci_lower = data.get('meta_analysis_results', {}).get('ci_lower', 0)
@@ -165,9 +166,9 @@ async def demo_complete_workflow():
             file_path = forest_result.get('file_path')
         else:
             data = getattr(forest_result, 'data', {})
-            if hasattr(data, 'studies_plotted'):
-                studies_plotted = data.studies_plotted
-                file_path = data.plot_file if hasattr(data, 'plot_file') else None
+            if isinstance(data, dict) and 'studies_plotted' in data:
+                studies_plotted = data['studies_plotted']
+                file_path = data.get('plot_file') if 'plot_file' in data else None
             else:
                 studies_plotted = data.get('forest_plot', {}).get('studies_plotted', 'unknown')
                 file_path = data.get('file_path')
@@ -189,9 +190,9 @@ async def demo_complete_workflow():
             interpretation = het_result.get('heterogeneity_assessment', {}).get('interpretation', {}).get('I_squared_level', 'Unknown')
         else:
             data = getattr(het_result, 'data', {})
-            if hasattr(data, 'i_squared'):
-                i_squared = data.i_squared
-                interpretation = data.interpretation if hasattr(data, 'interpretation') else 'Unknown'
+            if isinstance(data, dict) and 'i_squared' in data:
+                i_squared = data['i_squared']
+                interpretation = data.get('interpretation', 'Unknown')
             else:
                 i_squared = data.get('heterogeneity_assessment', {}).get('I_squared', 0)
                 interpretation = data.get('heterogeneity_assessment', {}).get('interpretation', {}).get('I_squared_level', 'Unknown')
