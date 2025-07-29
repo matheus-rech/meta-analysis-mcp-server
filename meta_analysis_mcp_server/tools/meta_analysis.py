@@ -13,8 +13,57 @@ from typing import Dict, List, Any, Optional, Tuple
 import json
 import base64
 import io
+import os
+import subprocess
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+R_SCRIPTS_DIR = Path(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))) / "r_scripts"
+
+def run_r_script(function_name: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Run R script with the given function name and input data.
+    
+    Args:
+        function_name: Name of the R function to call
+        input_data: Dictionary of input data to pass to the R function
+        
+    Returns:
+        Dictionary of results from the R function
+    """
+    logger.info(f"Running R function: {function_name}")
+    
+    try:
+        if not R_SCRIPTS_DIR.exists():
+            raise FileNotFoundError(f"R scripts directory not found: {R_SCRIPTS_DIR}")
+            
+        r_script_path = R_SCRIPTS_DIR / "meta_analysis.R"
+        
+        if not r_script_path.exists():
+            raise FileNotFoundError(f"R script not found: {r_script_path}")
+        
+        result = subprocess.run(
+            ["Rscript", str(r_script_path), function_name, json.dumps(input_data)],
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        
+        if result.returncode != 0:
+            logger.error(f"R script failed with return code {result.returncode}")
+            logger.error(f"Error: {result.stderr}")
+            raise RuntimeError(f"R script execution failed: {result.stderr}")
+            
+        try:
+            return json.loads(result.stdout.strip())
+        except json.JSONDecodeError:
+            logger.error(f"Failed to parse JSON output from R: {result.stdout}")
+            raise ValueError(f"Failed to parse JSON output from R: {result.stdout}")
+            
+    except Exception as e:
+        logger.error(f"Exception running R script: {str(e)}")
+        raise
 
 
 class MetaAnalysisTools:
@@ -31,7 +80,7 @@ class MetaAnalysisTools:
         measure: str = "SMD"
     ) -> Dict[str, Any]:
         """
-        Perform statistical meta-analysis.
+        Perform statistical meta-analysis using R.
         
         Args:
             studies: List of study data with effect_size, standard_error, sample_size
@@ -45,73 +94,41 @@ class MetaAnalysisTools:
             if not studies:
                 raise ValueError("No studies provided")
 
-            # Convert to arrays
-            effect_sizes = np.array([s["effect_size"] for s in studies])
-            standard_errors = np.array([s["standard_error"] for s in studies])
-            sample_sizes = np.array([s["sample_size"] for s in studies])
+            effect_sizes = [s["effect_size"] for s in studies]
+            standard_errors = [s["standard_error"] for s in studies]
+            study_ids = [s["study_id"] for s in studies]
+            sample_sizes = [s["sample_size"] for s in studies]
             
-            # Calculate weights (inverse variance)
-            variances = standard_errors ** 2
-            weights = 1 / variances
+            r_method = "FE" if method == "fixed" else "REML"
+            input_data = {
+                "effect_sizes": effect_sizes,
+                "standard_errors": standard_errors,
+                "study_ids": study_ids,
+                "method": r_method
+            }
             
-            if method == "fixed":
-                # Fixed-effects model
-                pooled_effect = np.sum(weights * effect_sizes) / np.sum(weights)
-                pooled_variance = 1 / np.sum(weights)
-                pooled_se = np.sqrt(pooled_variance)
-                
-                # Heterogeneity statistics
-                Q = np.sum(weights * (effect_sizes - pooled_effect) ** 2)
-                df = len(studies) - 1
-                p_heterogeneity = 1 - stats.chi2.cdf(Q, df) if df > 0 else 1.0
-                I_squared = max(0, (Q - df) / Q * 100) if Q > 0 else 0
-                tau_squared = 0  # Fixed effects assumes no between-study variance
-                
-            else:  # random effects
-                # Calculate Q statistic first
-                fixed_pooled = np.sum(weights * effect_sizes) / np.sum(weights)
-                Q = np.sum(weights * (effect_sizes - fixed_pooled) ** 2)
-                df = len(studies) - 1
-                
-                # Estimate tau-squared (DerSimonian-Laird method)
-                if df > 0 and Q > df:
-                    tau_squared = (Q - df) / (np.sum(weights) - np.sum(weights ** 2) / np.sum(weights))
-                else:
-                    tau_squared = 0
-                
-                # Random-effects weights
-                random_weights = 1 / (variances + tau_squared)
-                pooled_effect = np.sum(random_weights * effect_sizes) / np.sum(random_weights)
-                pooled_variance = 1 / np.sum(random_weights)
-                pooled_se = np.sqrt(pooled_variance)
-                
-                # Heterogeneity statistics
-                p_heterogeneity = 1 - stats.chi2.cdf(Q, df) if df > 0 else 1.0
-                I_squared = max(0, (Q - df) / Q * 100) if Q > 0 else 0
+            r_results = run_r_script("perform_meta_analysis", input_data)
             
-            # Confidence intervals
-            z_score = stats.norm.ppf(0.975)  # 95% CI
-            ci_lower = pooled_effect - z_score * pooled_se
-            ci_upper = pooled_effect + z_score * pooled_se
+            if "error" in r_results:
+                raise RuntimeError(f"R meta-analysis failed: {r_results['error']}")
             
-            # Z-test for overall effect
-            z_statistic = pooled_effect / pooled_se if pooled_se > 0 else 0
-            p_value = 2 * (1 - stats.norm.cdf(abs(z_statistic)))
+            # Calculate weights and confidence intervals for study results
+            variances = [se ** 2 for se in standard_errors]
+            weights = [1 / var for var in variances]
             
             # Format study-level results
             study_results = []
             for i, study in enumerate(studies):
-                study_weight = weights[i] if method == "fixed" else random_weights[i]
-                study_ci_lower = effect_sizes[i] - z_score * standard_errors[i]
-                study_ci_upper = effect_sizes[i] + z_score * standard_errors[i]
+                ci_lower = effect_sizes[i] - 1.96 * standard_errors[i]
+                ci_upper = effect_sizes[i] + 1.96 * standard_errors[i]
                 
                 study_results.append({
-                    "study_id": study["study_id"],
+                    "study_id": study_ids[i],
                     "effect_size": float(effect_sizes[i]),
                     "standard_error": float(standard_errors[i]),
-                    "weight": float(study_weight / np.sum(weights if method == "fixed" else random_weights) * 100),
-                    "ci_lower": float(study_ci_lower),
-                    "ci_upper": float(study_ci_upper)
+                    "weight": float(weights[i] / sum(weights) * 100),
+                    "ci_lower": float(ci_lower),
+                    "ci_upper": float(ci_upper)
                 })
             
             results = {
@@ -119,25 +136,32 @@ class MetaAnalysisTools:
                     "method": method,
                     "measure": measure,
                     "number_of_studies": len(studies),
-                    "total_participants": int(np.sum(sample_sizes)),
-                    "pooled_effect": float(pooled_effect),
-                    "standard_error": float(pooled_se),
-                    "ci_lower": float(ci_lower),
-                    "ci_upper": float(ci_upper),
-                    "z_statistic": float(z_statistic),
-                    "p_value": float(p_value),
-                    "significant": p_value < 0.05
+                    "total_participants": int(sum(sample_sizes)),
+                    "pooled_effect": float(r_results["estimate"]),
+                    "standard_error": float(r_results["se"]),
+                    "ci_lower": float(r_results["ci_lower"]),
+                    "ci_upper": float(r_results["ci_upper"]),
+                    "z_value": float(r_results["z_value"]),
+                    "p_value": float(r_results["p_value"]),
+                    "significant": float(r_results["p_value"]) < 0.05
                 },
                 "heterogeneity": {
-                    "Q_statistic": float(Q),
-                    "degrees_of_freedom": int(df),
-                    "p_heterogeneity": float(p_heterogeneity),
-                    "I_squared": float(I_squared),
-                    "tau_squared": float(tau_squared),
-                    "interpretation": self._interpret_heterogeneity(I_squared)
+                    "Q_statistic": float(r_results["q_statistic"]),
+                    "degrees_of_freedom": int(r_results["q_df"]),
+                    "p_heterogeneity": float(r_results["q_p_value"]),
+                    "I_squared": float(r_results["i_squared"]),
+                    "tau_squared": float(r_results["tau_squared"]),
+                    "interpretation": self._interpret_heterogeneity(float(r_results["i_squared"]))
                 },
                 "study_results": study_results,
-                "summary": self._generate_summary(pooled_effect, ci_lower, ci_upper, p_value, I_squared, measure)
+                "summary": self._generate_summary(
+                    float(r_results["estimate"]), 
+                    float(r_results["ci_lower"]), 
+                    float(r_results["ci_upper"]), 
+                    float(r_results["p_value"]), 
+                    float(r_results["i_squared"]), 
+                    measure
+                )
             }
             
             return results
@@ -153,7 +177,7 @@ class MetaAnalysisTools:
         output_format: str = "png"
     ) -> Dict[str, Any]:
         """
-        Create forest plot visualization.
+        Create forest plot visualization using R.
         
         Args:
             studies: Study data with effect_size, ci_lower, ci_upper, weight
@@ -167,74 +191,117 @@ class MetaAnalysisTools:
             if not studies:
                 raise ValueError("No studies provided for forest plot")
 
-            # Create plotly forest plot
-            fig = go.Figure()
-            
             study_names = [s["study_id"] for s in studies]
             effect_sizes = [s["effect_size"] for s in studies]
+            standard_errors = [s.get("standard_error", (s["ci_upper"] - s["ci_lower"]) / 3.92) for s in studies]
             ci_lowers = [s["ci_lower"] for s in studies]
             ci_uppers = [s["ci_upper"] for s in studies]
             weights = [s["weight"] for s in studies]
             
-            # Add confidence intervals
-            for i, (name, effect, ci_low, ci_high, weight) in enumerate(zip(
-                study_names, effect_sizes, ci_lowers, ci_uppers, weights
-            )):
-                # Horizontal line for CI
-                fig.add_trace(go.Scatter(
-                    x=[ci_low, ci_high],
-                    y=[i, i],
-                    mode='lines',
-                    line=dict(color='black', width=2),
-                    showlegend=False,
-                    hoverinfo='skip'
-                ))
+            # Prepare data for R forest plot
+            forest_plot_data = {
+                "effect_sizes": effect_sizes,
+                "standard_errors": standard_errors,
+                "study_names": study_names,
+                "ci_lower": ci_lowers,
+                "ci_upper": ci_uppers,
+                "weights": weights,
+                "output_file": os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "output", "forest_plot.png"),
+                "title": title,
+                "x_label": "Effect Size",
+                "width": 1000,
+                "height": max(600, len(studies) * 50)
+            }
+            
+            # Call R script to create forest plot
+            forest_plot_result = run_r_script("create_forest_plot", forest_plot_data)
+            
+            if not forest_plot_result.get("success", False):
+                self.logger.warning(f"Failed to generate forest plot in R: {forest_plot_result.get('error', 'Unknown error')}")
+                # Fall back to plotly for forest plot
+                fig = go.Figure()
                 
-                # Square for point estimate (size proportional to weight)
-                marker_size = max(8, min(20, weight * 0.5))
-                fig.add_trace(go.Scatter(
-                    x=[effect],
-                    y=[i],
-                    mode='markers',
-                    marker=dict(
-                        symbol='square',
-                        size=marker_size,
-                        color='blue',
-                        line=dict(color='black', width=1)
+                # Add confidence intervals
+                for i, (name, effect, ci_low, ci_high, weight) in enumerate(zip(
+                    study_names, effect_sizes, ci_lowers, ci_uppers, weights
+                )):
+                    # Horizontal line for CI
+                    fig.add_trace(go.Scatter(
+                        x=[ci_low, ci_high],
+                        y=[i, i],
+                        mode='lines',
+                        line=dict(color='black', width=2),
+                        showlegend=False,
+                        hoverinfo='skip'
+                    ))
+                    
+                    # Square for point estimate (size proportional to weight)
+                    marker_size = max(8, min(20, weight * 0.5))
+                    fig.add_trace(go.Scatter(
+                        x=[effect],
+                        y=[i],
+                        mode='markers',
+                        marker=dict(
+                            symbol='square',
+                            size=marker_size,
+                            color='blue',
+                            line=dict(color='black', width=1)
+                        ),
+                        showlegend=False,
+                        hovertemplate=f'<b>{name}</b><br>' +
+                                    f'Effect Size: {effect:.3f}<br>' +
+                                    f'95% CI: [{ci_low:.3f}, {ci_high:.3f}]<br>' +
+                                    f'Weight: {weight:.1f}%<extra></extra>'
+                    ))
+                
+                # Add vertical line at null effect
+                fig.add_vline(x=0, line_dash="dash", line_color="red", opacity=0.7)
+                
+                # Update layout
+                fig.update_layout(
+                    title=title,
+                    xaxis_title="Effect Size",
+                    yaxis=dict(
+                        tickmode='array',
+                        tickvals=list(range(len(studies))),
+                        ticktext=study_names,
+                        autorange='reversed'
                     ),
+                    height=max(400, len(studies) * 50),
                     showlegend=False,
-                    hovertemplate=f'<b>{name}</b><br>' +
-                                f'Effect Size: {effect:.3f}<br>' +
-                                f'95% CI: [{ci_low:.3f}, {ci_high:.3f}]<br>' +
-                                f'Weight: {weight:.1f}%<extra></extra>'
-                ))
-            
-            # Add vertical line at null effect
-            fig.add_vline(x=0, line_dash="dash", line_color="red", opacity=0.7)
-            
-            # Update layout
-            fig.update_layout(
-                title=title,
-                xaxis_title="Effect Size",
-                yaxis=dict(
-                    tickmode='array',
-                    tickvals=list(range(len(studies))),
-                    ticktext=study_names,
-                    autorange='reversed'
-                ),
-                height=max(400, len(studies) * 50),
-                showlegend=False,
-                template='plotly_white'
-            )
-            
-            # Generate output based on format
-            if output_format == "html":
-                plot_data = fig.to_html(include_plotlyjs=True)
-            elif output_format == "svg":
-                plot_data = fig.to_image(format="svg", engine="kaleido").decode()
-            else:  # png
-                img_bytes = fig.to_image(format="png", engine="kaleido")
-                plot_data = base64.b64encode(img_bytes).decode()
+                    template='plotly_white'
+                )
+                
+                # Generate output based on format
+                if output_format == "html":
+                    plot_data = fig.to_html(include_plotlyjs=True)
+                elif output_format == "svg":
+                    plot_data = fig.to_image(format="svg", engine="kaleido").decode()
+                else:  # png
+                    img_bytes = fig.to_image(format="png", engine="kaleido")
+                    plot_data = base64.b64encode(img_bytes).decode()
+            else:
+                # Use R-generated forest plot
+                forest_plot_path = forest_plot_result["output_file"]
+                
+                with open(forest_plot_path, "rb") as f:
+                    img_bytes = f.read()
+                
+                if output_format == "html":
+                    html = f"""
+                    <html>
+                    <body>
+                        <h2>{title}</h2>
+                        <img src="data:image/png;base64,{base64.b64encode(img_bytes).decode()}" alt="Forest Plot">
+                    </body>
+                    </html>
+                    """
+                    plot_data = html
+                elif output_format == "svg":
+                    self.logger.warning("SVG output format requested but R generates PNG. Returning PNG.")
+                    plot_data = base64.b64encode(img_bytes).decode()
+                else:  # png
+                    plot_data = base64.b64encode(img_bytes).decode()
             
             return {
                 "forest_plot": {
@@ -245,7 +312,8 @@ class MetaAnalysisTools:
                     "effect_range": {
                         "min": float(min(ci_lowers)),
                         "max": float(max(ci_uppers))
-                    }
+                    },
+                    "generated_by": "R metafor package" if forest_plot_result.get("success", False) else "Plotly fallback"
                 },
                 "study_summary": [
                     {
@@ -256,7 +324,12 @@ class MetaAnalysisTools:
                         "weight": s["weight"]
                     }
                     for s in studies
-                ]
+                ],
+                "pooled_effect": forest_plot_result.get("pooled_effect", None),
+                "pooled_ci": [
+                    forest_plot_result.get("ci_lower", None),
+                    forest_plot_result.get("ci_upper", None)
+                ] if forest_plot_result.get("success", False) else None
             }
             
         except Exception as e:
@@ -268,7 +341,7 @@ class MetaAnalysisTools:
         studies: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """
-        Assess between-study heterogeneity.
+        Assess between-study heterogeneity using R.
         
         Args:
             studies: Study data with effect_size and variance
@@ -280,55 +353,59 @@ class MetaAnalysisTools:
             if len(studies) < 2:
                 raise ValueError("At least 2 studies required for heterogeneity assessment")
 
-            effect_sizes = np.array([s["effect_size"] for s in studies])
-            variances = np.array([s["variance"] for s in studies])
-            weights = 1 / variances
+            effect_sizes = [s["effect_size"] for s in studies]
+            variances = [s["variance"] for s in studies]
+            standard_errors = [np.sqrt(v) for v in variances]
+            study_ids = [s["study_id"] for s in studies]
             
-            # Fixed-effects pooled estimate
-            pooled_effect = np.sum(weights * effect_sizes) / np.sum(weights)
+            input_data = {
+                "effect_sizes": effect_sizes,
+                "standard_errors": standard_errors,
+                "study_ids": study_ids,
+                "method": "REML"  # Default method for metafor
+            }
             
-            # Q statistic
-            Q = np.sum(weights * (effect_sizes - pooled_effect) ** 2)
-            df = len(studies) - 1
-            p_value = 1 - stats.chi2.cdf(Q, df) if df > 0 else 1.0
+            r_results = run_r_script("perform_meta_analysis", input_data)
             
-            # I-squared
-            I_squared = max(0, (Q - df) / Q * 100) if Q > 0 else 0
+            if "error" in r_results:
+                raise RuntimeError(f"R heterogeneity assessment failed: {r_results['error']}")
             
-            # Tau-squared (DerSimonian-Laird)
-            if df > 0 and Q > df:
-                c = np.sum(weights) - np.sum(weights ** 2) / np.sum(weights)
-                tau_squared = (Q - df) / c
-            else:
-                tau_squared = 0
-                
-            # H statistic
-            H = np.sqrt(Q / df) if df > 0 else 1.0
+            # Calculate weights and deviations for study contributions
+            weights = [1 / v for v in variances]
+            total_weight = sum(weights)
+            pooled_effect = float(r_results["estimate"])
             
             return {
                 "heterogeneity_assessment": {
-                    "Q_statistic": float(Q),
-                    "degrees_of_freedom": int(df),
-                    "p_value": float(p_value),
-                    "I_squared": float(I_squared),
-                    "tau_squared": float(tau_squared),
-                    "H_statistic": float(H),
-                    "significant_heterogeneity": p_value < 0.10,  # Traditional threshold
+                    "Q_statistic": float(r_results["q_statistic"]),
+                    "degrees_of_freedom": int(r_results["q_df"]),
+                    "p_value": float(r_results["q_p_value"]),
+                    "I_squared": float(r_results["i_squared"]),
+                    "tau_squared": float(r_results["tau_squared"]),
+                    "H_squared": float(r_results["h_squared"]),
+                    "significant_heterogeneity": float(r_results["q_p_value"]) < 0.10,  # Traditional threshold
                     "interpretation": {
-                        "I_squared_level": self._interpret_heterogeneity(I_squared),
-                        "clinical_significance": self._assess_clinical_heterogeneity(I_squared, tau_squared),
-                        "recommendation": self._heterogeneity_recommendation(I_squared, p_value)
+                        "I_squared_level": self._interpret_heterogeneity(float(r_results["i_squared"])),
+                        "clinical_significance": self._assess_clinical_heterogeneity(
+                            float(r_results["i_squared"]), 
+                            float(r_results["tau_squared"])
+                        ),
+                        "recommendation": self._heterogeneity_recommendation(
+                            float(r_results["i_squared"]), 
+                            float(r_results["q_p_value"])
+                        )
                     }
                 },
                 "study_contributions": [
                     {
-                        "study_id": studies[i]["study_id"],
+                        "study_id": study_ids[i],
                         "effect_size": float(effect_sizes[i]),
-                        "weight": float(weights[i] / np.sum(weights) * 100),
+                        "weight": float(weights[i] / total_weight * 100),
                         "deviation_from_pooled": float(abs(effect_sizes[i] - pooled_effect))
                     }
                     for i in range(len(studies))
-                ]
+                ],
+                "analysis_method": "R metafor package"
             }
             
         except Exception as e:
@@ -341,7 +418,7 @@ class MetaAnalysisTools:
         tests: List[str] = ["egger"]
     ) -> Dict[str, Any]:
         """
-        Assess publication bias using statistical tests and funnel plots.
+        Assess publication bias using statistical tests and funnel plots in R.
         
         Args:
             studies: Study data with effect_size and standard_error
@@ -354,93 +431,113 @@ class MetaAnalysisTools:
             if len(studies) < 3:
                 raise ValueError("At least 3 studies required for publication bias assessment")
 
-            effect_sizes = np.array([s["effect_size"] for s in studies])
-            standard_errors = np.array([s["standard_error"] for s in studies])
+            effect_sizes = [s["effect_size"] for s in studies]
+            standard_errors = [s["standard_error"] for s in studies]
+            study_ids = [s["study_id"] for s in studies]
+            
+            input_data = {
+                "effect_sizes": effect_sizes,
+                "standard_errors": standard_errors,
+                "study_ids": study_ids
+            }
+            
+            r_results = run_r_script("assess_publication_bias", input_data)
+            
+            if "error" in r_results:
+                raise RuntimeError(f"R publication bias assessment failed: {r_results['error']}")
+            
+            # Create funnel plot using R
+            funnel_plot_data = {
+                "effect_sizes": effect_sizes,
+                "standard_errors": standard_errors,
+                "output_file": os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "output", "funnel_plot.png"),
+                "title": "Funnel Plot for Publication Bias Assessment",
+                "width": 800,
+                "height": 600
+            }
+            
+            funnel_plot_result = run_r_script("create_funnel_plot", funnel_plot_data)
+            
+            if not funnel_plot_result.get("success", False):
+                self.logger.warning(f"Failed to generate funnel plot in R: {funnel_plot_result.get('error', 'Unknown error')}")
+                # Fall back to plotly for funnel plot
+                fig = go.Figure()
+                
+                # Add study points
+                fig.add_trace(go.Scatter(
+                    x=effect_sizes,
+                    y=[1/se for se in standard_errors],  # Precision on y-axis
+                    mode='markers',
+                    marker=dict(size=8, color='blue', opacity=0.7),
+                    text=study_ids,
+                    hovertemplate='<b>%{text}</b><br>' +
+                                'Effect Size: %{x:.3f}<br>' +
+                                'Precision: %{y:.3f}<extra></extra>',
+                    name='Studies'
+                ))
+                
+                # Add vertical line at null effect
+                fig.add_vline(x=0, line_dash="dash", line_color="red", opacity=0.7)
+                
+                # Update layout
+                fig.update_layout(
+                    title="Funnel Plot for Publication Bias Assessment",
+                    xaxis_title="Effect Size",
+                    yaxis_title="Precision (1/SE)",
+                    template='plotly_white',
+                    showlegend=False
+                )
+                
+                # Convert to base64 image
+                img_bytes = fig.to_image(format="png", engine="kaleido")
+                plot_data = base64.b64encode(img_bytes).decode()
+                
+                funnel_plot = {
+                    "plot_data": plot_data,
+                    "format": "png",
+                    "interpretation": self._interpret_funnel_plot_symmetry(effect_sizes, standard_errors)
+                }
+            else:
+                # Use R-generated funnel plot
+                funnel_plot_path = funnel_plot_result["output_file"]
+                
+                with open(funnel_plot_path, "rb") as f:
+                    plot_data = base64.b64encode(f.read()).decode()
+                
+                funnel_plot = {
+                    "plot_data": plot_data,
+                    "format": "png",
+                    "interpretation": "Funnel plot analysis performed using R's metafor package"
+                }
             
             results = {
                 "publication_bias_assessment": {
                     "number_of_studies": len(studies),
                     "tests_performed": tests
                 },
-                "statistical_tests": {},
-                "funnel_plot": {}
-            }
-            
-            # Egger's test
-            if "egger" in tests:
-                # Regression of standardized effect on precision
-                precision = 1 / standard_errors
-                standardized_effects = effect_sizes / standard_errors
-                
-                # Linear regression: standardized_effect = intercept + slope * precision
-                slope, intercept, r_value, p_value, std_err = stats.linregress(precision, standardized_effects)
-                
-                results["statistical_tests"]["egger"] = {
-                    "intercept": float(intercept),
-                    "slope": float(slope),
-                    "p_value": float(p_value),
-                    "significant": p_value < 0.05,
-                    "interpretation": "Evidence of publication bias" if p_value < 0.05 else "No evidence of publication bias"
-                }
-            
-            # Begg's test
-            if "begg" in tests:
-                # Rank correlation between effect sizes and variances
-                ranks_effect = stats.rankdata(effect_sizes)
-                ranks_variance = stats.rankdata(standard_errors ** 2)
-                
-                correlation, p_value = stats.spearmanr(ranks_effect, ranks_variance)
-                
-                results["statistical_tests"]["begg"] = {
-                    "correlation": float(correlation),
-                    "p_value": float(p_value),
-                    "significant": p_value < 0.05,
-                    "interpretation": "Evidence of publication bias" if p_value < 0.05 else "No evidence of publication bias"
-                }
-            
-            # Create funnel plot
-            fig = go.Figure()
-            
-            # Add study points
-            fig.add_trace(go.Scatter(
-                x=effect_sizes,
-                y=1/standard_errors,  # Precision on y-axis
-                mode='markers',
-                marker=dict(size=8, color='blue', opacity=0.7),
-                text=[s["study_id"] for s in studies],
-                hovertemplate='<b>%{text}</b><br>' +
-                            'Effect Size: %{x:.3f}<br>' +
-                            'Precision: %{y:.3f}<extra></extra>',
-                name='Studies'
-            ))
-            
-            # Add vertical line at null effect
-            fig.add_vline(x=0, line_dash="dash", line_color="red", opacity=0.7)
-            
-            # Update layout
-            fig.update_layout(
-                title="Funnel Plot for Publication Bias Assessment",
-                xaxis_title="Effect Size",
-                yaxis_title="Precision (1/SE)",
-                template='plotly_white',
-                showlegend=False
-            )
-            
-            # Convert to base64 image
-            img_bytes = fig.to_image(format="png", engine="kaleido")
-            plot_data = base64.b64encode(img_bytes).decode()
-            
-            results["funnel_plot"] = {
-                "plot_data": plot_data,
-                "format": "png",
-                "interpretation": self._interpret_funnel_plot_symmetry(effect_sizes, standard_errors)
+                "statistical_tests": {
+                    "egger": {
+                        "statistic": float(r_results["egger_test"]["statistic"]),
+                        "p_value": float(r_results["egger_test"]["p_value"]),
+                        "significant": r_results["egger_test"]["significant"],
+                        "interpretation": "Evidence of publication bias" if r_results["egger_test"]["significant"] else "No evidence of publication bias"
+                    },
+                    "begg": {
+                        "correlation": float(r_results["begg_test"]["statistic"]),
+                        "p_value": float(r_results["begg_test"]["p_value"]),
+                        "significant": r_results["begg_test"]["significant"],
+                        "interpretation": "Evidence of publication bias" if r_results["begg_test"]["significant"] else "No evidence of publication bias"
+                    }
+                },
+                "funnel_plot": funnel_plot,
+                "overall_interpretation": r_results["interpretation"]
             }
             
             # Overall assessment
             bias_evidence = []
-            if "egger" in results["statistical_tests"] and results["statistical_tests"]["egger"]["significant"]:
+            if results["statistical_tests"]["egger"]["significant"]:
                 bias_evidence.append("Egger's test")
-            if "begg" in results["statistical_tests"] and results["statistical_tests"]["begg"]["significant"]:
+            if results["statistical_tests"]["begg"]["significant"]:
                 bias_evidence.append("Begg's test")
                 
             results["overall_assessment"] = {
