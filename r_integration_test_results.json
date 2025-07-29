@@ -36,11 +36,66 @@
       }
     },
     "forest_plot": {
-      "success": false,
-      "output": null
+      "success": true,
+      "output": {
+        "studies": [
+          {
+            "study": "Study A",
+            "effect": -0.5,
+            "se": 0.15,
+            "ci_lb": -0.794,
+            "ci_ub": -0.206,
+            "weight": 44.4444
+          },
+          {
+            "study": "Study B",
+            "effect": -0.3,
+            "se": 0.12,
+            "ci_lb": -0.5352,
+            "ci_ub": -0.0648,
+            "weight": 69.4444
+          },
+          {
+            "study": "Study C",
+            "effect": -0.7,
+            "se": 0.18,
+            "ci_lb": -1.0528,
+            "ci_ub": -0.3472,
+            "weight": 30.8642
+          },
+          {
+            "study": "Study D",
+            "effect": -0.4,
+            "se": 0.14,
+            "ci_lb": -0.6744,
+            "ci_ub": -0.1256,
+            "weight": 51.0204
+          },
+          {
+            "study": "Study E",
+            "effect": -0.6,
+            "se": 0.16,
+            "ci_lb": -0.9136,
+            "ci_ub": -0.2864,
+            "weight": 39.0625
+          }
+        ],
+        "overall_effect": [
+          -0.468
+        ],
+        "overall_ci_lower": [
+          -0.6078
+        ],
+        "overall_ci_upper": [
+          -0.3282
+        ],
+        "n_studies": [
+          5
+        ]
+      }
     }
   },
-  "success_rate": "2/3",
-  "percentage": 66.7,
-  "conclusion": "Partial R integration - core functions operational"
+  "success_rate": "3/3",
+  "percentage": 100.0,
+  "conclusion": "R integration fully functional with genuine statistical computations"
 }
