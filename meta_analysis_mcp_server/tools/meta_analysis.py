@@ -198,10 +198,38 @@ class MetaAnalysisTools:
 
             study_names = [s["study_id"] for s in studies]
             effect_sizes = [s["effect_size"] for s in studies]
-            standard_errors = [s.get("standard_error", (s["ci_upper"] - s["ci_lower"]) / 3.92) for s in studies]
-            ci_lowers = [s["ci_lower"] for s in studies]
-            ci_uppers = [s["ci_upper"] for s in studies]
-            weights = [s["weight"] for s in studies]
+            standard_errors = [s.get("standard_error", 0.1) for s in studies]
+            
+            # Calculate confidence intervals if not provided
+            ci_lowers = []
+            ci_uppers = []
+            for i, study in enumerate(studies):
+                if "ci_lower" in study and "ci_upper" in study:
+                    ci_lowers.append(study["ci_lower"])
+                    ci_uppers.append(study["ci_upper"])
+                else:
+                    # Calculate 95% CI from effect size and standard error
+                    ci_lower = effect_sizes[i] - 1.96 * standard_errors[i]
+                    ci_upper = effect_sizes[i] + 1.96 * standard_errors[i]
+                    ci_lowers.append(ci_lower)
+                    ci_uppers.append(ci_upper)
+            
+            # Calculate weights if not provided
+            weights = []
+            for study in studies:
+                if "weight" in study:
+                    weights.append(study["weight"])
+                else:
+                    # Calculate weight as inverse of variance
+                    se = study.get("standard_error", 0.1)
+                    weight = 1 / (se ** 2) if se > 0 else 1.0
+                    weights.append(weight)
+            
+            total_weight = sum(weights)
+            if total_weight > 0:
+                weights = [(w / total_weight) * 100 for w in weights]
+            else:
+                weights = [100.0 / len(studies) for _ in studies]
             
             # Prepare data for R forest plot
             forest_plot_data = {
@@ -324,11 +352,11 @@ class MetaAnalysisTools:
                     {
                         "study_id": s["study_id"],
                         "effect_size": s["effect_size"],
-                        "ci_lower": s["ci_lower"],
-                        "ci_upper": s["ci_upper"],
-                        "weight": s["weight"]
+                        "ci_lower": ci_lowers[i],
+                        "ci_upper": ci_uppers[i],
+                        "weight": weights[i]
                     }
-                    for s in studies
+                    for i, s in enumerate(studies)
                 ],
                 "pooled_effect": forest_plot_result.get("pooled_effect", None),
                 "pooled_ci": [
@@ -366,8 +394,8 @@ class MetaAnalysisTools:
                 raise ValueError("At least 2 studies required for heterogeneity assessment")
 
             effect_sizes = [s["effect_size"] for s in studies]
-            variances = [s["variance"] for s in studies]
-            standard_errors = [np.sqrt(v) for v in variances]
+            standard_errors = [s.get("standard_error", 0.1) for s in studies]
+            variances = [se ** 2 for se in standard_errors]
             study_ids = [s["study_id"] for s in studies]
             
             input_data = {
@@ -541,7 +569,7 @@ class MetaAnalysisTools:
                         "interpretation": "Evidence of publication bias" if r_results["begg_test"]["significant"] else "No evidence of publication bias"
                     }
                 },
-                "funnel_plot": funnel_plot,
+                "funnel_plot": funnel_plot_path if os.path.exists(funnel_plot_path) else "plotly_generated",
                 "overall_interpretation": r_results["interpretation"]
             }
             
