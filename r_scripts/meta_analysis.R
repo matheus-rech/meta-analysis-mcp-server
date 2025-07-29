@@ -45,7 +45,7 @@ assess_publication_bias <- function(effect_sizes, standard_errors, study_ids) {
     egger_result <- regtest(effect_sizes, standard_errors, model = "lm")
     
     # Begg's test  
-    begg_result <- ranktest(effect_sizes, standard_errors)
+    begg_result <- ranktest(rma(yi = effect_sizes, sei = standard_errors))
     
     # Trim and fill
     tf_result <- trimfill(rma(yi = effect_sizes, sei = standard_errors))
