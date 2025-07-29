@@ -1,0 +1,618 @@
+{
+  "meta_analysis": {
+    "success": true,
+    "result": {
+      "meta_analysis_results": {
+        "method": "random",
+        "measure": "SMD",
+        "number_of_studies": 3,
+        "total_participants": 300,
+        "pooled_effect": 0.5133,
+        "standard_error": 0.1057,
+        "ci_lower": 0.3061,
+        "ci_upper": 0.7205,
+        "z_value": 4.8559,
+        "p_value": 1.1981e-06,
+        "significant": true
+      },
+      "heterogeneity": {
+        "Q_statistic": 4.4387,
+        "degrees_of_freedom": 2,
+        "p_heterogeneity": 0.1087,
+        "I_squared": 55.7813,
+        "tau_squared": 0.0186,
+        "interpretation": "Substantial heterogeneity"
+      },
+      "study_results": [
+        {
+          "study_id": "study_1",
+          "effect_size": 0.5,
+          "standard_error": 0.1,
+          "weight": 46.75324675324675,
+          "ci_lower": 0.304,
+          "ci_upper": 0.696
+        },
+        {
+          "study_id": "study_2",
+          "effect_size": 0.3,
+          "standard_error": 0.15,
+          "weight": 20.77922077922078,
+          "ci_lower": 0.006000000000000005,
+          "ci_upper": 0.594
+        },
+        {
+          "study_id": "study_3",
+          "effect_size": 0.7,
+          "standard_error": 0.12,
+          "weight": 32.46753246753247,
+          "ci_lower": 0.4648,
+          "ci_upper": 0.9351999999999999
+        }
+      ],
+      "summary": "Meta-analysis shows a significant positive effect (SMD = 0.513, 95% CI [0.306, 0.721], p = 0.000) with substantial heterogeneity."
+    }
+  },
+  "forest_plot": {
+    "success": false,
+    "error": "R script execution failed: Loading required package: Matrix\nLoading required package: metadat\nLoading required package: numDeriv\n\nLoading the 'metafor' package (version 4.8-0). For an\nintroduction to the package please type: help(metafor)\n\n"
+  },
+  "heterogeneity": {
+    "success": true,
+    "result": {
+      "heterogeneity_assessment": {
+        "Q_statistic": 4.4387,
+        "degrees_of_freedom": 2,
+        "p_value": 0.1087,
+        "I_squared": 55.7813,
+        "tau_squared": 0.0186,
+        "H_squared": 2.2615,
+        "significant_heterogeneity": false,
+        "interpretation": {
+          "I_squared_level": "Substantial heterogeneity",
+          "clinical_significance": "Acceptable heterogeneity for pooling",
+          "recommendation": "Random-effects model recommended"
+        }
+      },
+      "study_contributions": [
+        {
+          "study_id": "study_1",
+          "effect_size": 0.5,
+          "weight": 46.75324675324675,
+          "deviation_from_pooled": 0.013299999999999979
+        },
+        {
+          "study_id": "study_2",
+          "effect_size": 0.3,
+          "weight": 20.77922077922078,
+          "deviation_from_pooled": 0.2133
+        },
+        {
+          "study_id": "study_3",
+          "effect_size": 0.7,
+          "weight": 32.46753246753247,
+          "deviation_from_pooled": 0.18669999999999998
+        }
+      ],
+      "analysis_method": "R metafor package"
+    }
+  },
+  "publication_bias": {
+    "success": false,
+    "error": "R script execution failed: Loading required package: Matrix\nLoading required package: metadat\nLoading required package: numDeriv\n\nLoading the 'metafor' package (version 4.8-0). For an\nintroduction to the package please type: help(metafor)\n\n"
+  },
+  "risk_of_bias": {
+    "success": true,
+    "result": {
+      "assessment_summary": {
+        "total_studies": 3,
+        "assessment_mode": "hybrid",
+        "domains_assessed": [
+          "randomization",
+          "allocation_concealment",
+          "blinding"
+        ],
+        "assessment_date": "2025-07-29T09:36:57.511261"
+      },
+      "study_assessments": [
+        {
+          "study_id": "study_1",
+          "title": "Effectiveness of Treatment A in Population 1",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ],
+              "requires_manual_review": true
+            },
+            "allocation_concealment": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            },
+            "blinding": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            }
+          },
+          "overall_risk": "Some concerns"
+        },
+        {
+          "study_id": "study_2",
+          "title": "Treatment A vs Placebo: RCT Study",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ],
+              "requires_manual_review": true
+            },
+            "allocation_concealment": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            },
+            "blinding": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            }
+          },
+          "overall_risk": "Some concerns"
+        },
+        {
+          "study_id": "study_3",
+          "title": "Multi-center Trial of Treatment A",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ],
+              "requires_manual_review": true
+            },
+            "allocation_concealment": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            },
+            "blinding": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            }
+          },
+          "overall_risk": "Some concerns"
+        }
+      ],
+      "domain_summary": {
+        "randomization": {
+          "low_risk": 0,
+          "some_concerns": 3,
+          "high_risk": 0,
+          "percentage_low": 0.0,
+          "percentage_high": 0.0
+        },
+        "allocation_concealment": {
+          "low_risk": 0,
+          "some_concerns": 3,
+          "high_risk": 0,
+          "percentage_low": 0.0,
+          "percentage_high": 0.0
+        },
+        "blinding": {
+          "low_risk": 0,
+          "some_concerns": 3,
+          "high_risk": 0,
+          "percentage_low": 0.0,
+          "percentage_high": 0.0
+        }
+      },
+      "overall_assessment": {
+        "studies_low_risk": 0,
+        "studies_some_concerns": 3,
+        "studies_high_risk": 0,
+        "percentage_low_risk": 0.0,
+        "percentage_high_risk": 0.0,
+        "interpretation": "Mixed risk profile - moderate confidence in results"
+      },
+      "visualization": {
+        "plot_type": "traffic_light",
+        "data_matrix": [
+          {
+            "study_id": "study_1",
+            "domains": {
+              "randomization": "Some concerns",
+              "allocation_concealment": "Some concerns",
+              "blinding": "Some concerns"
+            }
+          },
+          {
+            "study_id": "study_2",
+            "domains": {
+              "randomization": "Some concerns",
+              "allocation_concealment": "Some concerns",
+              "blinding": "Some concerns"
+            }
+          },
+          {
+            "study_id": "study_3",
+            "domains": {
+              "randomization": "Some concerns",
+              "allocation_concealment": "Some concerns",
+              "blinding": "Some concerns"
+            }
+          }
+        ],
+        "color_coding": {
+          "Low": "#00FF00",
+          "Some concerns": "#FFFF00",
+          "High": "#FF0000"
+        }
+      }
+    }
+  },
+  "prisma_checklist": {
+    "success": true,
+    "result": {
+      "checklist_summary": {
+        "prisma_version": "PRISMA 2020",
+        "total_items": 27,
+        "assessment_date": "2025-07-29T09:36:57.511425",
+        "review_title": "Effectiveness of Treatment A vs Placebo: A Systematic Review"
+      },
+      "item_assessments": {
+        "1": {
+          "item_number": "1",
+          "section": "Title",
+          "description": "Identify the report as a systematic review",
+          "compliant": true,
+          "evidence": "Title identifies report as systematic review",
+          "confidence": "High"
+        },
+        "2": {
+          "item_number": "2",
+          "section": "Abstract - Background",
+          "description": "Provide structured summary including background",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "3": {
+          "item_number": "3",
+          "section": "Abstract - Objectives",
+          "description": "Provide structured summary including objectives",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "4": {
+          "item_number": "4",
+          "section": "Abstract - Methods",
+          "description": "Provide structured summary including methods",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "5": {
+          "item_number": "5",
+          "section": "Abstract - Results",
+          "description": "Provide structured summary including results",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "6": {
+          "item_number": "6",
+          "section": "Abstract - Conclusions",
+          "description": "Provide structured summary including conclusions",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "7": {
+          "item_number": "7",
+          "section": "Abstract - Registration",
+          "description": "Provide registration information",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "8": {
+          "item_number": "8",
+          "section": "Introduction - Rationale",
+          "description": "Describe rationale for review",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "9": {
+          "item_number": "9",
+          "section": "Introduction - Objectives",
+          "description": "Provide explicit statement of objectives",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "10": {
+          "item_number": "10",
+          "section": "Methods - Eligibility criteria",
+          "description": "Specify inclusion and exclusion criteria",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "11": {
+          "item_number": "11",
+          "section": "Methods - Information sources",
+          "description": "Describe all information sources",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "12": {
+          "item_number": "12",
+          "section": "Methods - Search strategy",
+          "description": "Present full search strategies",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "13": {
+          "item_number": "13",
+          "section": "Methods - Selection process",
+          "description": "Describe methods of study selection",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "14": {
+          "item_number": "14",
+          "section": "Methods - Data collection",
+          "description": "Describe methods of data extraction",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "15": {
+          "item_number": "15",
+          "section": "Methods - Data items",
+          "description": "List and define all variables",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "16": {
+          "item_number": "16",
+          "section": "Methods - Study risk of bias",
+          "description": "Describe methods for assessing risk of bias",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "17": {
+          "item_number": "17",
+          "section": "Methods - Effect measures",
+          "description": "Specify for each outcome the effect measure",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "18": {
+          "item_number": "18",
+          "section": "Methods - Synthesis methods",
+          "description": "Describe processes used to decide whether to meta-analyse",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "19": {
+          "item_number": "19",
+          "section": "Methods - Reporting bias",
+          "description": "Describe any methods used to assess risk of bias",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "20": {
+          "item_number": "20",
+          "section": "Methods - Certainty assessment",
+          "description": "Describe methods used to assess certainty",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "21": {
+          "item_number": "21",
+          "section": "Results - Study selection",
+          "description": "Give numbers of studies screened and included",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "22": {
+          "item_number": "22",
+          "section": "Results - Study characteristics",
+          "description": "Cite each included study and present characteristics",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "23": {
+          "item_number": "23",
+          "section": "Results - Risk of bias",
+          "description": "Present assessments of risk of bias for each study",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "24": {
+          "item_number": "24",
+          "section": "Results - Results of individual studies",
+          "description": "For all outcomes present summary statistics",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "25": {
+          "item_number": "25",
+          "section": "Results - Results of syntheses",
+          "description": "Present results of each meta-analysis",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "26": {
+          "item_number": "26",
+          "section": "Results - Reporting biases",
+          "description": "Present assessments of risk of bias due to missing results",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        },
+        "27": {
+          "item_number": "27",
+          "section": "Results - Certainty of evidence",
+          "description": "Present assessments of certainty for each outcome",
+          "compliant": false,
+          "evidence": "",
+          "confidence": "Low"
+        }
+      },
+      "compliance_score": {
+        "compliant_items": 1,
+        "total_items": 27,
+        "percentage": 3.7037037037037033,
+        "grade": "D (Poor)",
+        "interpretation": "Poor PRISMA compliance - major revisions needed before publication"
+      },
+      "recommendations": [
+        "Address the following non-compliant items:",
+        "Item 2: Provide structured summary including background",
+        "Item 3: Provide structured summary including objectives",
+        "Item 4: Provide structured summary including methods",
+        "Item 5: Provide structured summary including results",
+        "Item 6: Provide structured summary including conclusions",
+        "Consider using PRISMA-P for protocol development",
+        "Register systematic review protocol in PROSPERO",
+        "Consult PRISMA 2020 explanation and elaboration document",
+        "Consider peer review of reporting before submission"
+      ],
+      "flow_diagram": {}
+    }
+  },
+  "cochrane_report": {
+    "success": true,
+    "result": {
+      "report_metadata": {
+        "title": "Effectiveness of Treatment A vs Placebo: A Systematic Review",
+        "authors": [
+          "Test Author"
+        ],
+        "generation_date": "2025-07-29T09:36:57.511569",
+        "cochrane_compliance": true,
+        "format": "html"
+      },
+      "sections": {
+        "title_page": {
+          "title": "Effectiveness of Treatment A vs Placebo: A Systematic Review",
+          "authors": [
+            "Test Author"
+          ],
+          "affiliation": "Cochrane Systematic Review",
+          "date": "July 2025",
+          "version": "1.0"
+        },
+        "abstract": {
+          "background": "This systematic review evaluates Treatment A effectiveness.",
+          "objectives": "To assess Treatment A effectiveness and safety.",
+          "search_methods": "Comprehensive search of major databases",
+          "selection_criteria": "",
+          "data_collection": "Standardized data extraction forms",
+          "main_results": "",
+          "authors_conclusions": ""
+        },
+        "background": {
+          "description_of_condition": "This systematic review evaluates Treatment A effectiveness.",
+          "description_of_intervention": "Intervention details",
+          "how_intervention_works": "Mechanism of action",
+          "why_review_important": "Rationale for systematic review"
+        },
+        "objectives": {
+          "primary_objective": "To assess Treatment A effectiveness and safety.",
+          "secondary_objectives": "Additional research questions",
+          "types_of_studies": "Study design criteria",
+          "types_of_participants": "Population criteria",
+          "types_of_interventions": "Intervention criteria",
+          "types_of_outcomes": "Outcome measures"
+        },
+        "methods": {
+          "criteria_for_studies": "",
+          "search_methods": "",
+          "data_collection": "",
+          "assessment_of_bias": "",
+          "measures_of_treatment": "Effect measures used",
+          "dealing_with_missing_data": "Missing data procedures",
+          "assessment_of_heterogeneity": "Heterogeneity assessment methods",
+          "data_synthesis": ""
+        },
+        "results": {
+          "description_of_studies": "Characteristics of included studies",
+          "risk_of_bias": "Risk of bias assessment results",
+          "effects_of_interventions": ""
+        },
+        "discussion": {
+          "summary_of_findings": "Key findings summary",
+          "overall_completeness": "Completeness of evidence",
+          "quality_of_evidence": "Quality assessment",
+          "potential_biases": "Limitations and biases",
+          "agreements_disagreements": "Comparison with other reviews",
+          "implications_for_practice": "Clinical implications",
+          "implications_for_research": "Research implications"
+        },
+        "conclusions": {
+          "implications_for_practice": "Practice recommendations",
+          "implications_for_research": "Future research needs",
+          "main_conclusions": ""
+        },
+        "references": {
+          "included_studies": "References to included studies",
+          "excluded_studies": "References to excluded studies",
+          "additional_references": []
+        }
+      },
+      "appendices": {},
+      "compliance_indicators": {
+        "cochrane_handbook_compliance": true,
+        "prisma_compliance": 0,
+        "grade_assessment_included": false,
+        "rob_assessment_included": false,
+        "overall_quality_score": 10.0
+      },
+      "formatted_output": "\n        <!DOCTYPE html>\n        <html>\n        <head>\n            <title></title>\n            <style>\n                body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }\n                h1 { color: #2c3e50; border-bottom: 2px solid #3498db; }\n                h2 { color: #34495e; margin-top: 30px; }\n                h3 { color: #7f8c8d; }\n                .abstract { background: #ecf0f1; padding: 20px; margin: 20px 0; }\n                .compliance-badge { background: #27ae60; color: white; padding: 5px 10px; border-radius: 5px; }\n                .section { margin: 30px 0; }\n                table { width: 100%; border-collapse: collapse; margin: 20px 0; }\n                th, td { border: 1px solid #bdc3c7; padding: 10px; text-align: left; }\n                th { background: #3498db; color: white; }\n            </style>\n        </head>\n        <body>\n            <h1>Effectiveness of Treatment A vs Placebo: A Systematic Review</h1>\n            <p><strong>Authors:</strong> Test Author</p>\n            <p><strong>Date:</strong> July 2025</p>\n            <span class=\"compliance-badge\">Cochrane Compliant</span>\n            \n            <div class=\"section\">\n                <h2>Abstract</h2>\n                <div class=\"abstract\">\n                    <h3>Background</h3>\n                    <p>This systematic review evaluates Treatment A effectiveness.</p>\n                    <h3>Objectives</h3>\n                    <p>To assess Treatment A effectiveness and safety.</p>\n                    <h3>Main Results</h3>\n                    <p></p>\n                    <h3>Authors' Conclusions</h3>\n                    <p></p>\n                </div>\n            </div>\n            \n            <div class=\"section\">\n                <h2>Background</h2>\n                <p>This systematic review evaluates Treatment A effectiveness.</p>\n            </div>\n            \n            <div class=\"section\">\n                <h2>Objectives</h2>\n                <p>To assess Treatment A effectiveness and safety.</p>\n            </div>\n            \n            <div class=\"section\">\n                <h2>Results</h2>\n                <p></p>\n            </div>\n            \n            <div class=\"section\">\n                <h2>Conclusions</h2>\n                <p></p>\n            </div>\n            \n            <div class=\"section\">\n                <h2>Compliance Summary</h2>\n                <p><strong>Overall Quality Score:</strong> 10.0%</p>\n                <p><strong>PRISMA Compliance:</strong> 0.0%</p>\n                <p><strong>GRADE Assessment:</strong> Not Included</p>\n                <p><strong>Risk of Bias Assessment:</strong> Not Included</p>\n            </div>\n        </body>\n        </html>\n        "
+    }
+  }
+}
