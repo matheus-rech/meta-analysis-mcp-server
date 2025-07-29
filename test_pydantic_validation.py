@@ -8,8 +8,9 @@ import asyncio
 import json
 import sys
 import os
+from pathlib import Path
 from datetime import datetime
-sys.path.append('/home/ubuntu/repos/meta-analysis-mcp-server')
+sys.path.append(str(Path(__file__).parent / "meta-analysis-mcp-server"))
 
 from meta_analysis_mcp_server.tools.meta_analysis import MetaAnalysisTools
 from meta_analysis_mcp_server.models import (
