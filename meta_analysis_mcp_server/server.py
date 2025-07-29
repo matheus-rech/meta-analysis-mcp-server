@@ -5,10 +5,16 @@ import json
 import logging
 from typing import Any, Dict, List, Optional, Union, Sequence
 
-from mcp.server import Server
-from mcp.server.models import InitializationOptions
-import mcp.server.stdio
-import mcp.types as types
+# Handle MCP import gracefully for development
+try:
+    from mcp.server import Server
+    from mcp.server.models import InitializationOptions
+    import mcp.server.stdio
+    import mcp.types as types
+    MCP_AVAILABLE = True
+except ImportError:
+    MCP_AVAILABLE = False
+    print("MCP not available - running in development mode")
 
 from .tools.meta_analysis import MetaAnalysisTools
 from .tools.cochrane_compliance import CochraneComplianceTools
