@@ -1012,9 +1012,20 @@ class CochraneComplianceTools:
                 report_data["appendices"]["grade_assessment"] = self._format_grade_appendix(grade_assessment)
 
             # Compliance indicators
+            prisma_compliance = 0
+            if prisma_checklist:
+                if isinstance(prisma_checklist, dict):
+                    prisma_compliance = prisma_checklist.get("compliance_score", {}).get("percentage", 0)
+                else:
+                    data = getattr(prisma_checklist, 'data', {})
+                    if isinstance(data, dict):
+                        prisma_compliance = data.get("compliance_score", {}).get("percentage", 0)
+                    elif hasattr(data, 'compliance_score'):
+                        prisma_compliance = getattr(data.compliance_score, 'percentage', 0)
+            
             report_data["compliance_indicators"] = {
                 "cochrane_handbook_compliance": True,
-                "prisma_compliance": prisma_checklist.get("compliance_score", {}).get("percentage", 0) if prisma_checklist else 0,
+                "prisma_compliance": prisma_compliance,
                 "grade_assessment_included": grade_assessment is not None,
                 "rob_assessment_included": rob_assessment is not None,
                 "overall_quality_score": self._calculate_report_quality_score(
@@ -1100,9 +1111,21 @@ class CochraneComplianceTools:
         }
         
         if analysis_results:
+            if isinstance(analysis_results, dict):
+                meta_results = analysis_results.get("meta_analysis_results", {})
+                heterogeneity = analysis_results.get("heterogeneity", {})
+            else:
+                data = getattr(analysis_results, 'data', {})
+                if isinstance(data, dict):
+                    meta_results = data.get("meta_analysis_results", {})
+                    heterogeneity = data.get("heterogeneity", {})
+                else:
+                    meta_results = {}
+                    heterogeneity = {}
+            
             results_section["quantitative_synthesis"] = {
-                "meta_analysis_results": analysis_results.get("meta_analysis_results", {}),
-                "heterogeneity_assessment": analysis_results.get("heterogeneity", {}),
+                "meta_analysis_results": meta_results,
+                "heterogeneity_assessment": heterogeneity,
                 "publication_bias": "Publication bias assessment results"
             }
         
@@ -1138,37 +1161,87 @@ class CochraneComplianceTools:
 
     def _format_rob_appendix(self, rob_assessment: Dict[str, Any]) -> Dict[str, Any]:
         """Format risk of bias assessment for appendix."""
+        if isinstance(rob_assessment, dict):
+            domain_summary = rob_assessment.get("domain_summary", {})
+            study_assessments = rob_assessment.get("study_assessments", [])
+            visualization = rob_assessment.get("visualization", {})
+        else:
+            data = getattr(rob_assessment, 'data', {})
+            if isinstance(data, dict):
+                domain_summary = data.get("domain_summary", {})
+                study_assessments = data.get("study_assessments", [])
+                visualization = data.get("visualization", {})
+            else:
+                domain_summary = {}
+                study_assessments = []
+                visualization = {}
+        
         return {
             "title": "Risk of Bias Assessment",
-            "summary_table": rob_assessment.get("domain_summary", {}),
-            "individual_assessments": rob_assessment.get("study_assessments", []),
-            "traffic_light_plot": rob_assessment.get("visualization", {})
+            "summary_table": domain_summary,
+            "individual_assessments": study_assessments,
+            "traffic_light_plot": visualization
         }
 
     def _format_prisma_appendix(self, prisma_checklist: Dict[str, Any]) -> Dict[str, Any]:
         """Format PRISMA checklist for appendix."""
+        if isinstance(prisma_checklist, dict):
+            compliance_score = prisma_checklist.get("compliance_score", {})
+            item_assessments = prisma_checklist.get("item_assessments", {})
+            flow_diagram = prisma_checklist.get("flow_diagram", {})
+        else:
+            data = getattr(prisma_checklist, 'data', {})
+            if isinstance(data, dict):
+                compliance_score = data.get("compliance_score", {})
+                item_assessments = data.get("item_assessments", {})
+                flow_diagram = data.get("flow_diagram", {})
+            else:
+                compliance_score = {}
+                item_assessments = {}
+                flow_diagram = {}
+        
         return {
             "title": "PRISMA 2020 Checklist",
-            "compliance_score": prisma_checklist.get("compliance_score", {}),
-            "item_assessments": prisma_checklist.get("item_assessments", {}),
-            "flow_diagram": prisma_checklist.get("flow_diagram", {})
+            "compliance_score": compliance_score,
+            "item_assessments": item_assessments,
+            "flow_diagram": flow_diagram
         }
 
     def _format_grade_appendix(self, grade_assessment: Dict[str, Any]) -> Dict[str, Any]:
         """Format GRADE assessment for appendix."""
+        if isinstance(grade_assessment, dict):
+            summary_of_findings = grade_assessment.get("summary_of_findings", {})
+            certainty_ratings = grade_assessment.get("certainty_rating", {})
+            domain_assessments = grade_assessment.get("domain_assessments", {})
+        else:
+            data = getattr(grade_assessment, 'data', {})
+            if isinstance(data, dict):
+                summary_of_findings = data.get("summary_of_findings", {})
+                certainty_ratings = data.get("certainty_rating", {})
+                domain_assessments = data.get("domain_assessments", {})
+            else:
+                summary_of_findings = {}
+                certainty_ratings = {}
+                domain_assessments = {}
+        
         return {
             "title": "GRADE Evidence Assessment",
-            "summary_of_findings": grade_assessment.get("summary_of_findings", {}),
-            "certainty_ratings": grade_assessment.get("certainty_rating", {}),
-            "domain_assessments": grade_assessment.get("domain_assessments", {})
+            "summary_of_findings": summary_of_findings,
+            "certainty_ratings": certainty_ratings,
+            "domain_assessments": domain_assessments
         }
 
     def _calculate_report_quality_score(self, prisma: Optional[Dict], grade: Optional[Dict], rob: Optional[Dict]) -> float:
         """Calculate overall report quality score."""
         score = 0.0
         
-        if prisma and "compliance_score" in prisma:
-            score += prisma["compliance_score"].get("percentage", 0) * 0.4  # 40% weight
+        if prisma:
+            if isinstance(prisma, dict) and "compliance_score" in prisma:
+                score += prisma["compliance_score"].get("percentage", 0) * 0.4  # 40% weight
+            elif hasattr(prisma, 'data'):
+                data = getattr(prisma, 'data', {})
+                if isinstance(data, dict) and "compliance_score" in data:
+                    score += data["compliance_score"].get("percentage", 0) * 0.4
         
         if grade:
             score += 30.0  # 30 points for GRADE inclusion

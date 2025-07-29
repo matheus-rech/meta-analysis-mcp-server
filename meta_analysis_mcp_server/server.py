@@ -386,7 +386,22 @@ class MetaAnalysisServer:
                 else:
                     raise ValueError(f"Unknown tool: {name}")
 
-                return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                if hasattr(result, 'model_dump'):
+                    result_dict = result.model_dump()
+                elif hasattr(result, '__dict__'):
+                    result_dict = {
+                        'success': getattr(result, 'success', True),
+                        'data': getattr(result, 'data', result),
+                        'message': getattr(result, 'message', None),
+                        'errors': getattr(result, 'errors', None),
+                        'execution_time_ms': getattr(result, 'execution_time_ms', None)
+                    }
+                    if hasattr(result_dict['data'], 'model_dump'):
+                        result_dict['data'] = result_dict['data'].model_dump()
+                else:
+                    result_dict = result
+
+                return [types.TextContent(type="text", text=json.dumps(result_dict, indent=2, default=str))]
 
             except Exception as e:
                 logger.error(f"Error calling tool {name}: {e}")
