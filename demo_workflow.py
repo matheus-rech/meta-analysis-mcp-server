@@ -116,7 +116,7 @@ async def demo_complete_workflow():
                 "effect_size": study["effect_size"],
                 "ci_lower": study["effect_size"] - z_score * study["standard_error"],
                 "ci_upper": study["effect_size"] + z_score * study["standard_error"],
-                "weight": 1 / study["variance"]
+                "weight": 1 / study["variance"] if study["variance"] > 0 else 1.0
             })
         
         forest_result = await server.meta_tools.create_forest_plot(
