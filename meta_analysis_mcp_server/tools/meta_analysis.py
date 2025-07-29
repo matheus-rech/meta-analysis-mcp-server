@@ -16,6 +16,12 @@ import io
 import os
 import subprocess
 from pathlib import Path
+from datetime import datetime
+from ..models import (
+    MetaAnalysisResult, ForestPlotResult, PublicationBiasResult, 
+    HeterogeneityMetrics, StudyData, ConfidenceInterval,
+    ToolResponse, ValidationError
+)
 
 logger = logging.getLogger(__name__)
 
@@ -80,9 +86,9 @@ class MetaAnalysisTools:
         session_id: str = None,
         method: str = "random",
         measure: str = "SMD"
-    ) -> Dict[str, Any]:
+    ) -> ToolResponse:
         """
-        Perform statistical meta-analysis using R.
+        Perform statistical meta-analysis using R with Pydantic validation.
         
         Args:
             studies: List of study data with effect_size, standard_error, sample_size (optional if session_id provided)
@@ -91,18 +97,36 @@ class MetaAnalysisTools:
             measure: Effect measure (SMD, MD, OR, RR, RD)
             
         Returns:
-            Meta-analysis results including pooled effect, confidence intervals, heterogeneity
+            ToolResponse containing validated MetaAnalysisResult
         """
+        start_time = datetime.now()
+        
         try:
             if session_id and session_id in self.sessions:
                 studies = self.sessions[session_id]["studies"]
             elif not studies:
-                raise ValueError("Either studies list or valid session_id must be provided")
+                return ToolResponse(
+                    success=False,
+                    data={"error": "Either studies list or valid session_id must be provided"},
+                    errors=["Either studies list or valid session_id must be provided"]
+                )
+            
+            validated_studies = []
+            for i, study in enumerate(studies):
+                try:
+                    validated_study = StudyData(**study)
+                    validated_studies.append(validated_study)
+                except Exception as e:
+                    return ToolResponse(
+                        success=False,
+                        data={"error": f"Invalid study data at index {i}"},
+                        errors=[f"Study {i} validation failed: {str(e)}"]
+                    )
 
-            effect_sizes = [s["effect_size"] for s in studies]
-            standard_errors = [s["standard_error"] for s in studies]
-            study_ids = [s["study_id"] for s in studies]
-            sample_sizes = [s["sample_size"] for s in studies]
+            effect_sizes = [s.effect_size for s in validated_studies]
+            standard_errors = [s.standard_error for s in validated_studies]
+            study_ids = [s.study_id for s in validated_studies]
+            sample_sizes = [s.sample_size for s in validated_studies]
             
             r_method = "FE" if method == "fixed" else "REML"
             input_data = {
@@ -115,121 +139,176 @@ class MetaAnalysisTools:
             r_results = run_r_script("perform_meta_analysis", input_data)
             
             if "error" in r_results:
-                raise RuntimeError(f"R meta-analysis failed: {r_results['error']}")
+                return ToolResponse(
+                    success=False,
+                    data={"error": f"R meta-analysis failed: {r_results['error']}"},
+                    errors=[f"R meta-analysis failed: {r_results['error']}"]
+                )
             
-            # Calculate weights and confidence intervals for study results
+            try:
+                confidence_interval = ConfidenceInterval(
+                    lower=float(r_results["ci_lower"]),
+                    upper=float(r_results["ci_upper"]),
+                    level=0.95
+                )
+            except Exception as e:
+                return ToolResponse(
+                    success=False,
+                    data={"error": "Invalid confidence interval from R results"},
+                    errors=[f"Confidence interval validation failed: {str(e)}"]
+                )
+            
+            try:
+                heterogeneity = HeterogeneityMetrics(
+                    i_squared=float(r_results["i_squared"]),
+                    tau_squared=float(r_results["tau_squared"]),
+                    q_statistic=float(r_results["q_statistic"]),
+                    q_p_value=float(r_results["q_p_value"]),
+                    interpretation=self._interpret_heterogeneity(float(r_results["i_squared"]))
+                )
+            except Exception as e:
+                return ToolResponse(
+                    success=False,
+                    data={"error": "Invalid heterogeneity metrics from R results"},
+                    errors=[f"Heterogeneity validation failed: {str(e)}"]
+                )
+            
+            # Calculate weights and update study data
             variances = [se ** 2 for se in standard_errors]
             weights = [1 / var for var in variances]
+            total_weight = sum(weights)
             
-            # Format study-level results
-            study_results = []
-            for i, study in enumerate(studies):
-                ci_lower = effect_sizes[i] - 1.96 * standard_errors[i]
-                ci_upper = effect_sizes[i] + 1.96 * standard_errors[i]
-                
-                study_results.append({
-                    "study_id": study_ids[i],
-                    "effect_size": float(effect_sizes[i]),
-                    "standard_error": float(standard_errors[i]),
-                    "weight": float(weights[i] / sum(weights) * 100),
-                    "ci_lower": float(ci_lower),
-                    "ci_upper": float(ci_upper)
-                })
+            # Create validated study results
+            validated_study_results = []
+            for i, study in enumerate(validated_studies):
+                try:
+                    study_with_weight = StudyData(
+                        study_id=study.study_id,
+                        effect_size=study.effect_size,
+                        standard_error=study.standard_error,
+                        sample_size=study.sample_size,
+                        study_name=study.study_name,
+                        weight=float(weights[i] / total_weight * 100)
+                    )
+                    validated_study_results.append(study_with_weight)
+                except Exception as e:
+                    return ToolResponse(
+                        success=False,
+                        data={"error": f"Invalid study data at index {i}"},
+                        errors=[f"Study {i} weight validation failed: {str(e)}"]
+                    )
             
-            results = {
-                "meta_analysis_results": {
-                    "method": method,
-                    "measure": measure,
-                    "number_of_studies": len(studies),
-                    "total_participants": int(sum(sample_sizes)),
-                    "pooled_effect": float(r_results["estimate"]),
-                    "standard_error": float(r_results["se"]),
-                    "ci_lower": float(r_results["ci_lower"]),
-                    "ci_upper": float(r_results["ci_upper"]),
-                    "z_value": float(r_results["z_value"]),
-                    "p_value": float(r_results["p_value"]),
-                    "significant": float(r_results["p_value"]) < 0.05
-                },
-                "heterogeneity": {
-                    "Q_statistic": float(r_results["q_statistic"]),
-                    "degrees_of_freedom": int(r_results["q_df"]),
-                    "p_heterogeneity": float(r_results["q_p_value"]),
-                    "I_squared": float(r_results["i_squared"]),
-                    "tau_squared": float(r_results["tau_squared"]),
-                    "interpretation": self._interpret_heterogeneity(float(r_results["i_squared"]))
-                },
-                "study_results": study_results,
-                "summary": self._generate_summary(
-                    float(r_results["estimate"]), 
-                    float(r_results["ci_lower"]), 
-                    float(r_results["ci_upper"]), 
-                    float(r_results["p_value"]), 
-                    float(r_results["i_squared"]), 
-                    measure
+            try:
+                meta_result = MetaAnalysisResult(
+                    pooled_effect_size=float(r_results["estimate"]),
+                    confidence_interval=confidence_interval,
+                    p_value=float(r_results["p_value"]),
+                    method=method,
+                    measure=measure,
+                    studies_analyzed=len(validated_studies),
+                    heterogeneity=heterogeneity,
+                    studies=validated_study_results,
+                    analysis_timestamp=datetime.now()
                 )
-            }
+            except Exception as e:
+                return ToolResponse(
+                    success=False,
+                    data={"error": "Invalid meta-analysis result structure"},
+                    errors=[f"MetaAnalysisResult validation failed: {str(e)}"]
+                )
             
-            return results
+            if session_id:
+                if session_id not in self.sessions:
+                    self.sessions[session_id] = {}
+                self.sessions[session_id]['last_meta_analysis'] = meta_result.dict()
+                self.sessions[session_id]['last_activity'] = datetime.now()
+            
+            execution_time = (datetime.now() - start_time).total_seconds() * 1000
+            
+            return ToolResponse(
+                success=True,
+                data=meta_result,
+                message=f"Meta-analysis completed successfully with {len(validated_studies)} studies",
+                execution_time_ms=execution_time
+            )
             
         except Exception as e:
+            execution_time = (datetime.now() - start_time).total_seconds() * 1000
             self.logger.error(f"Error in meta-analysis: {e}")
-            raise
+            return ToolResponse(
+                success=False,
+                data={"error": f"Meta-analysis failed: {str(e)}"},
+                errors=[f"Meta-analysis execution failed: {str(e)}"],
+                execution_time_ms=execution_time
+            )
 
     async def create_forest_plot(
         self,
         studies: List[Dict[str, Any]],
         title: str = "Forest Plot",
         output_format: str = "png"
-    ) -> Dict[str, Any]:
+    ) -> ToolResponse:
         """
-        Create forest plot visualization using R.
+        Create forest plot visualization using R with Pydantic validation.
         
         Args:
-            studies: Study data with effect_size, ci_lower, ci_upper, weight
+            studies: Study data with effect_size, standard_error, sample_size
             title: Plot title
             output_format: Output format (png, svg, html)
             
         Returns:
-            Forest plot data and visualization
+            ToolResponse containing validated ForestPlotResult
         """
+        start_time = datetime.now()
+        
         try:
             if not studies:
-                raise ValueError("No studies provided for forest plot")
-
-            study_names = [s["study_id"] for s in studies]
-            effect_sizes = [s["effect_size"] for s in studies]
-            standard_errors = [s.get("standard_error", 0.1) for s in studies]
+                return ToolResponse(
+                    success=False,
+                    data={"error": "No studies provided for forest plot"},
+                    errors=["No studies provided for forest plot"]
+                )
             
-            # Calculate confidence intervals if not provided
+            validated_studies = []
+            for i, study in enumerate(studies):
+                try:
+                    validated_study = StudyData(**study)
+                    validated_studies.append(validated_study)
+                except Exception as e:
+                    return ToolResponse(
+                        success=False,
+                        data={"error": f"Invalid study data at index {i}"},
+                        errors=[f"Study {i} validation failed: {str(e)}"]
+                    )
+
+            study_names = [s.study_id for s in validated_studies]
+            effect_sizes = [s.effect_size for s in validated_studies]
+            standard_errors = [s.standard_error for s in validated_studies]
+            
+            # Calculate confidence intervals and weights
             ci_lowers = []
             ci_uppers = []
-            for i, study in enumerate(studies):
-                if "ci_lower" in study and "ci_upper" in study:
-                    ci_lowers.append(study["ci_lower"])
-                    ci_uppers.append(study["ci_upper"])
-                else:
-                    # Calculate 95% CI from effect size and standard error
-                    ci_lower = effect_sizes[i] - 1.96 * standard_errors[i]
-                    ci_upper = effect_sizes[i] + 1.96 * standard_errors[i]
-                    ci_lowers.append(ci_lower)
-                    ci_uppers.append(ci_upper)
-            
-            # Calculate weights if not provided
             weights = []
-            for study in studies:
-                if "weight" in study:
-                    weights.append(study["weight"])
+            
+            for i, study in enumerate(validated_studies):
+                # Calculate 95% CI from effect size and standard error
+                ci_lower = study.effect_size - 1.96 * study.standard_error
+                ci_upper = study.effect_size + 1.96 * study.standard_error
+                ci_lowers.append(ci_lower)
+                ci_uppers.append(ci_upper)
+                
+                # Calculate weight as inverse of variance or use provided weight
+                if study.weight is not None:
+                    weights.append(study.weight)
                 else:
-                    # Calculate weight as inverse of variance
-                    se = study.get("standard_error", 0.1)
-                    weight = 1 / (se ** 2) if se > 0 else 1.0
+                    weight = 1 / (study.standard_error ** 2) if study.standard_error > 0 else 1.0
                     weights.append(weight)
             
             total_weight = sum(weights)
             if total_weight > 0:
                 weights = [(w / total_weight) * 100 for w in weights]
             else:
-                weights = [100.0 / len(studies) for _ in studies]
+                weights = [100.0 / len(validated_studies) for _ in validated_studies]
             
             # Prepare data for R forest plot
             forest_plot_data = {
@@ -243,131 +322,59 @@ class MetaAnalysisTools:
                 "title": title,
                 "x_label": "Effect Size",
                 "width": 1000,
-                "height": max(600, len(studies) * 50)
+                "height": max(600, len(validated_studies) * 50)
             }
             
             # Call R script to create forest plot
             forest_plot_result = run_r_script("create_forest_plot", forest_plot_data)
             
             if not forest_plot_result.get("success", False):
-                self.logger.warning(f"Failed to generate forest plot in R: {forest_plot_result.get('error', 'Unknown error')}")
-                # Fall back to plotly for forest plot
-                fig = go.Figure()
-                
-                # Add confidence intervals
-                for i, (name, effect, ci_low, ci_high, weight) in enumerate(zip(
-                    study_names, effect_sizes, ci_lowers, ci_uppers, weights
-                )):
-                    # Horizontal line for CI
-                    fig.add_trace(go.Scatter(
-                        x=[ci_low, ci_high],
-                        y=[i, i],
-                        mode='lines',
-                        line=dict(color='black', width=2),
-                        showlegend=False,
-                        hoverinfo='skip'
-                    ))
-                    
-                    # Square for point estimate (size proportional to weight)
-                    marker_size = max(8, min(20, weight * 0.5))
-                    fig.add_trace(go.Scatter(
-                        x=[effect],
-                        y=[i],
-                        mode='markers',
-                        marker=dict(
-                            symbol='square',
-                            size=marker_size,
-                            color='blue',
-                            line=dict(color='black', width=1)
-                        ),
-                        showlegend=False,
-                        hovertemplate=f'<b>{name}</b><br>' +
-                                    f'Effect Size: {effect:.3f}<br>' +
-                                    f'95% CI: [{ci_low:.3f}, {ci_high:.3f}]<br>' +
-                                    f'Weight: {weight:.1f}%<extra></extra>'
-                    ))
-                
-                # Add vertical line at null effect
-                fig.add_vline(x=0, line_dash="dash", line_color="red", opacity=0.7)
-                
-                # Update layout
-                fig.update_layout(
-                    title=title,
-                    xaxis_title="Effect Size",
-                    yaxis=dict(
-                        tickmode='array',
-                        tickvals=list(range(len(studies))),
-                        ticktext=study_names,
-                        autorange='reversed'
-                    ),
-                    height=max(400, len(studies) * 50),
-                    showlegend=False,
-                    template='plotly_white'
+                return ToolResponse(
+                    success=False,
+                    data={"error": f"R forest plot generation failed: {forest_plot_result.get('error', 'Unknown error')}"},
+                    errors=[f"R forest plot generation failed: {forest_plot_result.get('error', 'Unknown error')}"]
                 )
-                
-                # Generate output based on format
-                if output_format == "html":
-                    plot_data = fig.to_html(include_plotlyjs=True)
-                elif output_format == "svg":
-                    plot_data = fig.to_image(format="svg", engine="kaleido").decode()
-                else:  # png
-                    img_bytes = fig.to_image(format="png", engine="kaleido")
-                    plot_data = base64.b64encode(img_bytes).decode()
-            else:
-                # Use R-generated forest plot
-                forest_plot_path = forest_plot_result["output_file"]
-                
-                with open(forest_plot_path, "rb") as f:
-                    img_bytes = f.read()
-                
-                if output_format == "html":
-                    html = f"""
-                    <html>
-                    <body>
-                        <h2>{title}</h2>
-                        <img src="data:image/png;base64,{base64.b64encode(img_bytes).decode()}" alt="Forest Plot">
-                    </body>
-                    </html>
-                    """
-                    plot_data = html
-                elif output_format == "svg":
-                    self.logger.warning("SVG output format requested but R generates PNG. Returning PNG.")
-                    plot_data = base64.b64encode(img_bytes).decode()
-                else:  # png
-                    plot_data = base64.b64encode(img_bytes).decode()
             
-            return {
-                "forest_plot": {
-                    "title": title,
-                    "format": output_format,
-                    "plot_data": plot_data,
-                    "studies_plotted": len(studies),
-                    "effect_range": {
-                        "min": float(min(ci_lowers)),
-                        "max": float(max(ci_uppers))
-                    },
-                    "generated_by": "R metafor package" if forest_plot_result.get("success", False) else "Plotly fallback"
-                },
-                "study_summary": [
-                    {
-                        "study_id": s["study_id"],
-                        "effect_size": s["effect_size"],
-                        "ci_lower": ci_lowers[i],
-                        "ci_upper": ci_uppers[i],
-                        "weight": weights[i]
-                    }
-                    for i, s in enumerate(studies)
-                ],
-                "pooled_effect": forest_plot_result.get("pooled_effect", None),
-                "pooled_ci": [
-                    forest_plot_result.get("ci_lower", None),
-                    forest_plot_result.get("ci_upper", None)
-                ] if forest_plot_result.get("success", False) else None
-            }
+            # Create validated ForestPlotResult
+            try:
+                plot_file = forest_plot_result.get("plot_file", "")
+                file_size = None
+                if plot_file and os.path.exists(plot_file):
+                    file_size = os.path.getsize(plot_file)
+                
+                forest_result = ForestPlotResult(
+                    plot_file=plot_file,
+                    format=output_format,
+                    studies_plotted=len(validated_studies),
+                    title=title,
+                    dimensions={"width": 1000, "height": max(600, len(validated_studies) * 50)},
+                    file_size_bytes=file_size
+                )
+            except Exception as e:
+                return ToolResponse(
+                    success=False,
+                    data={"error": "Invalid forest plot result structure"},
+                    errors=[f"ForestPlotResult validation failed: {str(e)}"]
+                )
+            
+            execution_time = (datetime.now() - start_time).total_seconds() * 1000
+            
+            return ToolResponse(
+                success=True,
+                data=forest_result,
+                message=f"Forest plot generated successfully for {len(validated_studies)} studies",
+                execution_time_ms=execution_time
+            )
             
         except Exception as e:
-            self.logger.error(f"Error creating forest plot: {e}")
-            raise
+            execution_time = (datetime.now() - start_time).total_seconds() * 1000
+            self.logger.error(f"Error in forest plot generation: {e}")
+            return ToolResponse(
+                success=False,
+                data={"error": f"Forest plot generation failed: {str(e)}"},
+                errors=[f"Forest plot generation failed: {str(e)}"],
+                execution_time_ms=execution_time
+            )
 
     async def assess_heterogeneity(
         self,
@@ -456,24 +463,42 @@ class MetaAnalysisTools:
         self,
         studies: List[Dict[str, Any]],
         tests: List[str] = ["egger"]
-    ) -> Dict[str, Any]:
+    ) -> ToolResponse:
         """
-        Assess publication bias using statistical tests and funnel plots in R.
+        Assess publication bias using statistical tests and funnel plots in R with Pydantic validation.
         
         Args:
             studies: Study data with effect_size and standard_error
             tests: Statistical tests to perform
             
         Returns:
-            Publication bias assessment results
+            ToolResponse containing validated PublicationBiasResult
         """
+        start_time = datetime.now()
+        
         try:
             if len(studies) < 3:
-                raise ValueError("At least 3 studies required for publication bias assessment")
+                return ToolResponse(
+                    success=False,
+                    data={"error": "At least 3 studies required for publication bias assessment"},
+                    errors=["At least 3 studies required for publication bias assessment"]
+                )
+            
+            validated_studies = []
+            for i, study in enumerate(studies):
+                try:
+                    validated_study = StudyData(**study)
+                    validated_studies.append(validated_study)
+                except Exception as e:
+                    return ToolResponse(
+                        success=False,
+                        data={"error": f"Invalid study data at index {i}"},
+                        errors=[f"Study {i} validation failed: {str(e)}"]
+                    )
 
-            effect_sizes = [s["effect_size"] for s in studies]
-            standard_errors = [s["standard_error"] for s in studies]
-            study_ids = [s["study_id"] for s in studies]
+            effect_sizes = [s.effect_size for s in validated_studies]
+            standard_errors = [s.standard_error for s in validated_studies]
+            study_ids = [s.study_id for s in validated_studies]
             
             input_data = {
                 "effect_sizes": effect_sizes,
@@ -484,7 +509,11 @@ class MetaAnalysisTools:
             r_results = run_r_script("assess_publication_bias", input_data)
             
             if "error" in r_results:
-                raise RuntimeError(f"R publication bias assessment failed: {r_results['error']}")
+                return ToolResponse(
+                    success=False,
+                    data={"error": f"R publication bias assessment failed: {r_results['error']}"},
+                    errors=[f"R publication bias assessment failed: {r_results['error']}"]
+                )
             
             # Create funnel plot using R
             funnel_plot_data = {
@@ -550,47 +579,58 @@ class MetaAnalysisTools:
                     "interpretation": "Funnel plot analysis performed using R's metafor package"
                 }
             
-            results = {
-                "publication_bias_assessment": {
-                    "number_of_studies": len(studies),
-                    "tests_performed": tests
-                },
-                "statistical_tests": {
-                    "egger": {
-                        "statistic": float(r_results["egger_test"]["statistic"]),
-                        "p_value": float(r_results["egger_test"]["p_value"]),
-                        "significant": r_results["egger_test"]["significant"],
-                        "interpretation": "Evidence of publication bias" if r_results["egger_test"]["significant"] else "No evidence of publication bias"
-                    },
-                    "begg": {
-                        "correlation": float(r_results["begg_test"]["statistic"]),
-                        "p_value": float(r_results["begg_test"]["p_value"]),
-                        "significant": r_results["begg_test"]["significant"],
-                        "interpretation": "Evidence of publication bias" if r_results["begg_test"]["significant"] else "No evidence of publication bias"
-                    }
-                },
-                "funnel_plot": funnel_plot_path if os.path.exists(funnel_plot_path) else "plotly_generated",
-                "overall_interpretation": r_results["interpretation"]
-            }
+            # Create validated PublicationBiasTest objects
+            egger_test = PublicationBiasTest(
+                test_name="Egger's test",
+                statistic=float(r_results["egger_test"]["statistic"]),
+                p_value=float(r_results["egger_test"]["p_value"]),
+                interpretation="Evidence of publication bias" if r_results["egger_test"]["significant"] else "No evidence of publication bias"
+            )
+            
+            begg_test = PublicationBiasTest(
+                test_name="Begg's test", 
+                statistic=float(r_results["begg_test"]["statistic"]),
+                p_value=float(r_results["begg_test"]["p_value"]),
+                interpretation="Evidence of publication bias" if r_results["begg_test"]["significant"] else "No evidence of publication bias"
+            )
             
             # Overall assessment
             bias_evidence = []
-            if results["statistical_tests"]["egger"]["significant"]:
+            if r_results["egger_test"]["significant"]:
                 bias_evidence.append("Egger's test")
-            if results["statistical_tests"]["begg"]["significant"]:
+            if r_results["begg_test"]["significant"]:
                 bias_evidence.append("Begg's test")
-                
-            results["overall_assessment"] = {
-                "evidence_of_bias": len(bias_evidence) > 0,
-                "significant_tests": bias_evidence,
-                "recommendation": self._publication_bias_recommendation(len(bias_evidence), len(studies))
-            }
             
-            return results
+            conclusion = self._publication_bias_recommendation(len(bias_evidence), len(validated_studies))
+            
+            # Create validated PublicationBiasResult
+            bias_result = PublicationBiasResult(
+                funnel_plot=funnel_plot_path if os.path.exists(funnel_plot_path) else "plotly_generated",
+                tests_performed=tests,
+                egger_test=egger_test,
+                begg_test=begg_test,
+                conclusion=conclusion,
+                studies_analyzed=len(validated_studies)
+            )
+            
+            execution_time = (datetime.now() - start_time).total_seconds() * 1000
+            
+            return ToolResponse(
+                success=True,
+                data=bias_result,
+                message=f"Publication bias assessment completed for {len(validated_studies)} studies",
+                execution_time_ms=execution_time
+            )
             
         except Exception as e:
+            execution_time = (datetime.now() - start_time).total_seconds() * 1000
             self.logger.error(f"Error detecting publication bias: {e}")
-            raise
+            return ToolResponse(
+                success=False,
+                data={"error": f"Publication bias assessment failed: {str(e)}"},
+                errors=[f"Publication bias assessment failed: {str(e)}"],
+                execution_time_ms=execution_time
+            )
 
     def _interpret_heterogeneity(self, i_squared: float) -> str:
         """Interpret I-squared values."""
