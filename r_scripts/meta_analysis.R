@@ -138,6 +138,16 @@ if (!interactive()) {
     )
     cat(result)
     
+  } else if (func_name == "create_forest_plot") {
+    input_data <- fromJSON(args[2])
+    result <- create_forest_plot(args[2])
+    cat(result)
+    
+  } else if (func_name == "create_funnel_plot") {
+    input_data <- fromJSON(args[2])
+    result <- create_funnel_plot(args[2])
+    cat(result)
+    
   } else {
     cat("Unknown function:", func_name, "\n")
     quit(status = 1)
