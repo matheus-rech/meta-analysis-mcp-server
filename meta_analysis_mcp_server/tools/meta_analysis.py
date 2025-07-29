@@ -647,16 +647,16 @@ class MetaAnalysisTools:
                     test_name="Egger's test",
                     statistic=float(r_results["egger_test"]["statistic"]),
                     p_value=float(r_results["egger_test"]["p_value"]),
-                    significant=bool(r_results["egger_test"]["significant"]),
-                    interpretation="Evidence of publication bias" if r_results["egger_test"]["significant"] else "No evidence of publication bias"
+                    significant=r_results["egger_test"]["p_value"] < 0.05,
+                    interpretation="Evidence of publication bias" if r_results["egger_test"]["p_value"] < 0.05 else "No evidence of publication bias"
                 )
                 
                 begg_test = PublicationBiasTest(
                     test_name="Begg's test", 
                     statistic=float(r_results["begg_test"]["statistic"]),
                     p_value=float(r_results["begg_test"]["p_value"]),
-                    significant=bool(r_results["begg_test"]["significant"]),
-                    interpretation="Evidence of publication bias" if r_results["begg_test"]["significant"] else "No evidence of publication bias"
+                    significant=r_results["begg_test"]["p_value"] < 0.05,
+                    interpretation="Evidence of publication bias" if r_results["begg_test"]["p_value"] < 0.05 else "No evidence of publication bias"
                 )
             except (KeyError, TypeError, ValueError) as e:
                 return ToolResponse(
