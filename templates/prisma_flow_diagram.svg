@@ -1,0 +1,103 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #f8f9fa; stroke: #333; stroke-width: 2; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; }
+      .title { font-size: 14px; font-weight: bold; }
+      .arrow { stroke: #333; stroke-width: 2; marker-end: url(#arrowhead); }
+      .excluded { fill: #fff3cd; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" class="text title">PRISMA 2020 Flow Diagram</text>
+  
+  <!-- Identification -->
+  <text x="400" y="60" class="text title">Identification</text>
+  
+  <!-- Records identified -->
+  <rect x="300" y="80" width="200" height="60" class="box"/>
+  <text x="400" y="105" class="text">Records identified through</text>
+  <text x="400" y="120" class="text">database searching</text>
+  <text x="400" y="135" class="text">(n = {{ records_identified }})</text>
+  
+  <!-- Additional records -->
+  <rect x="520" y="80" width="180" height="60" class="box"/>
+  <text x="610" y="105" class="text">Additional records identified</text>
+  <text x="610" y="120" class="text">through other sources</text>
+  <text x="610" y="135" class="text">(n = {{ additional_records }})</text>
+  
+  <!-- Arrow down -->
+  <line x1="400" y1="140" x2="400" y2="170" class="arrow"/>
+  
+  <!-- Screening -->
+  <text x="400" y="190" class="text title">Screening</text>
+  
+  <!-- Records after duplicates removed -->
+  <rect x="300" y="210" width="200" height="60" class="box"/>
+  <text x="400" y="235" class="text">Records after duplicates removed</text>
+  <text x="400" y="250" class="text">(n = {{ records_after_duplicates }})</text>
+  
+  <!-- Records excluded -->
+  <rect x="520" y="210" width="180" height="60" class="box excluded"/>
+  <text x="610" y="235" class="text">Records excluded</text>
+  <text x="610" y="250" class="text">(n = {{ records_excluded_screening }})</text>
+  
+  <!-- Arrow down -->
+  <line x1="400" y1="270" x2="400" y2="300" class="arrow"/>
+  <!-- Arrow right -->
+  <line x1="500" y1="240" x2="520" y2="240" class="arrow"/>
+  
+  <!-- Full-text articles assessed -->
+  <rect x="300" y="320" width="200" height="60" class="box"/>
+  <text x="400" y="345" class="text">Full-text articles assessed</text>
+  <text x="400" y="360" class="text">for eligibility</text>
+  <text x="400" y="375" class="text">(n = {{ full_text_assessed }})</text>
+  
+  <!-- Full-text articles excluded -->
+  <rect x="520" y="320" width="180" height="80" class="box excluded"/>
+  <text x="610" y="345" class="text">Full-text articles excluded,</text>
+  <text x="610" y="360" class="text">with reasons</text>
+  <text x="610" y="375" class="text">(n = {{ full_text_excluded }})</text>
+  <text x="610" y="390" class="text">{{ exclusion_reasons }}</text>
+  
+  <!-- Arrow down -->
+  <line x1="400" y1="380" x2="400" y2="410" class="arrow"/>
+  <!-- Arrow right -->
+  <line x1="500" y1="350" x2="520" y2="350" class="arrow"/>
+  
+  <!-- Included -->
+  <text x="400" y="430" class="text title">Included</text>
+  
+  <!-- Studies included in qualitative synthesis -->
+  <rect x="200" y="450" width="180" height="60" class="box"/>
+  <text x="290" y="475" class="text">Studies included in</text>
+  <text x="290" y="490" class="text">qualitative synthesis</text>
+  <text x="290" y="505" class="text">(n = {{ studies_qualitative }})</text>
+  
+  <!-- Studies included in quantitative synthesis -->
+  <rect x="420" y="450" width="180" height="60" class="box"/>
+  <text x="510" y="475" class="text">Studies included in</text>
+  <text x="510" y="490" class="text">quantitative synthesis</text>
+  <text x="510" y="505" class="text">(meta-analysis)</text>
+  <text x="510" y="520" class="text">(n = {{ studies_quantitative }})</text>
+  
+  <!-- Arrow down to qualitative -->
+  <line x1="400" y1="410" x2="290" y2="450" class="arrow"/>
+  <!-- Arrow down to quantitative -->
+  <line x1="400" y1="410" x2="510" y2="450" class="arrow"/>
+  
+  <!-- Studies excluded from meta-analysis -->
+  <rect x="620" y="450" width="160" height="80" class="box excluded"/>
+  <text x="700" y="475" class="text">Studies excluded from</text>
+  <text x="700" y="490" class="text">meta-analysis</text>
+  <text x="700" y="505" class="text">(n = {{ studies_excluded_ma }})</text>
+  <text x="700" y="520" class="text">{{ ma_exclusion_reasons }}</text>
+  
+  <!-- Arrow right -->
+  <line x1="600" y1="480" x2="620" y2="480" class="arrow"/>
+</svg>
