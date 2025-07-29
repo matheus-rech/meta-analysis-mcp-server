@@ -42,7 +42,8 @@ perform_meta_analysis <- function(effect_sizes, standard_errors, study_ids, meth
 assess_publication_bias <- function(effect_sizes, standard_errors, study_ids) {
   tryCatch({
     # Egger's test
-    egger_result <- regtest(effect_sizes, standard_errors, model = "lm")
+    ma_object <- rma(yi = effect_sizes, sei = standard_errors)
+    egger_result <- regtest(ma_object, model = "lm")
     
     # Begg's test  
     begg_result <- ranktest(rma(yi = effect_sizes, sei = standard_errors))
