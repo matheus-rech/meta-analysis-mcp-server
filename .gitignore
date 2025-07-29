@@ -124,3 +124,7 @@ Thumbs.db
 
 # Temporary files
 /tmp/
+
+# Project specific
+output_files/
+*.pyc

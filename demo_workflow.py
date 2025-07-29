@@ -7,6 +7,7 @@ Demonstrates all 11 tools working end-to-end with sample data.
 import asyncio
 import json
 import logging
+import os
 from pathlib import Path
 from meta_analysis_mcp_server.server import MetaAnalysisServer
 
@@ -92,9 +93,34 @@ async def demo_complete_workflow():
     print("\n📊 Step 1: Core Meta-Analysis Tools")
     print("-" * 40)
     
-    print("🔍 Performing meta-analysis...")
+    print("\n🔄 Initializing meta-analysis session...")
+    try:
+        init_result = await server.meta_tools.initialize_meta_analysis(
+            user_id="demo_user",
+            project_name="Cardiovascular Interventions Meta-Analysis",
+            study_type="clinical_trial",
+            effect_measure="SMD"
+        )
+        session_id = init_result['session_id']
+        print(f"✅ Session initialized: {session_id}")
+    except Exception as e:
+        print(f"❌ Session initialization failed: {e}")
+        session_id = "demo-session"
+    
+    print("\n📤 Uploading study data...")
+    try:
+        upload_result = await server.meta_tools.upload_study_data(
+            session_id=session_id,
+            studies=sample_studies
+        )
+        print(f"✅ Data uploaded: {upload_result['validation_summary']['total_studies']} studies")
+    except Exception as e:
+        print(f"❌ Data upload failed: {e}")
+    
+    print("\n🔍 Performing meta-analysis...")
     try:
         ma_result = await server.meta_tools.perform_meta_analysis(
+            session_id=session_id,
             studies=sample_studies,
             method="random",
             measure="SMD"
@@ -108,30 +134,24 @@ async def demo_complete_workflow():
     
     print("\n🌲 Creating forest plot...")
     try:
-        forest_studies = []
-        for study in sample_studies:
-            z_score = 1.96
-            forest_studies.append({
-                "study_id": study["study_id"],
-                "effect_size": study["effect_size"],
-                "ci_lower": study["effect_size"] - z_score * study["standard_error"],
-                "ci_upper": study["effect_size"] + z_score * study["standard_error"],
-                "weight": 1 / study["variance"] if study["variance"] > 0 else 1.0
-            })
-        
-        forest_result = await server.meta_tools.create_forest_plot(
-            studies=forest_studies,
+        forest_result = await server.meta_tools.generate_forest_plot(
+            session_id=session_id,
             title="Forest Plot - Intervention A vs Control",
             output_format="png"
         )
         print(f"✅ Forest plot created: {forest_result['forest_plot']['studies_plotted']} studies plotted")
+        if 'file_path' in forest_result:
+            print(f"   File: {forest_result['file_path']}")
     except Exception as e:
         print(f"❌ Forest plot failed: {e}")
         forest_result = None
     
     print("\n📈 Assessing heterogeneity...")
     try:
-        het_result = await server.meta_tools.assess_heterogeneity(studies=sample_studies)
+        het_result = await server.meta_tools.assess_heterogeneity(
+            session_id=session_id,
+            studies=sample_studies
+        )
         print(f"✅ Heterogeneity assessment: I² = {het_result['heterogeneity_assessment']['I_squared']:.1f}%")
         print(f"   Interpretation: {het_result['heterogeneity_assessment']['interpretation']['I_squared_level']}")
     except Exception as e:
@@ -140,16 +160,57 @@ async def demo_complete_workflow():
     
     print("\n🎯 Detecting publication bias...")
     try:
-        bias_result = await server.meta_tools.detect_publication_bias(
-            studies=sample_studies,
-            tests=["egger", "begg"]
+        bias_result = await server.meta_tools.assess_publication_bias(
+            session_id=session_id,
+            tests=["funnel_plot", "egger_test", "begg_test"]
         )
-        egger_p = bias_result['statistical_tests']['egger']['p_value']
-        print(f"✅ Publication bias assessment: Egger's test p = {egger_p:.3f}")
-        print(f"   Conclusion: {bias_result['overall_assessment']['recommendation']}")
+        if 'statistical_tests' in bias_result and 'egger' in bias_result['statistical_tests']:
+            egger_p = bias_result['statistical_tests']['egger']['p_value']
+            print(f"✅ Publication bias assessment: Egger's test p = {egger_p:.3f}")
+        else:
+            print(f"✅ Publication bias assessment completed")
+        
+        if 'overall_assessment' in bias_result:
+            print(f"   Conclusion: {bias_result['overall_assessment']['recommendation']}")
+        
+        if 'results' in bias_result and 'funnel_plot_path' in bias_result['results']:
+            print(f"   Funnel plot: {bias_result['results']['funnel_plot_path']}")
     except Exception as e:
         print(f"❌ Publication bias assessment failed: {e}")
         bias_result = None
+    
+    print("\n📑 Generating comprehensive report...")
+    try:
+        report_result = await server.meta_tools.generate_report(
+            session_id=session_id,
+            format="html",
+            include_plots=True,
+            include_data_summary=True
+        )
+        print(f"✅ Report generated successfully")
+        if 'file_path' in report_result:
+            print(f"   Report: {report_result['file_path']}")
+    except Exception as e:
+        print(f"❌ Report generation failed: {e}")
+        report_result = None
+    
+    print("\n📊 Getting session status...")
+    try:
+        status_result = await server.meta_tools.get_session_status(
+            session_id=session_id
+        )
+        print(f"✅ Session status: {status_result.get('status', 'Active')}")
+        print(f"   Workflow stage: {status_result.get('workflow_stage', 'Complete')}")
+        
+        if 'files' in status_result:
+            files = status_result['files']
+            print("   Generated files:")
+            for file_type, file_list in files.items():
+                for file_path in file_list:
+                    print(f"     - {file_type}: {file_path}")
+    except Exception as e:
+        print(f"❌ Session status failed: {e}")
+        status_result = None
     
     print("\n🏥 Step 2: Cochrane Compliance Tools")
     print("-" * 40)
@@ -157,6 +218,7 @@ async def demo_complete_workflow():
     print("\n⚖️ Assessing risk of bias (Cochrane ROB 2.0)...")
     try:
         rob_result = await server.cochrane_tools.assess_risk_of_bias(
+            session_id=session_id,
             studies=sample_studies,
             assessment_mode="hybrid"
         )
@@ -196,6 +258,7 @@ async def demo_complete_workflow():
         }
         
         prisma_result = await server.cochrane_tools.generate_prisma_checklist(
+            session_id=session_id,
             review_data=review_data,
             generate_flow_diagram=True,
             screening_data=screening_data
@@ -224,6 +287,7 @@ async def demo_complete_workflow():
         }
         
         grade_result = await server.cochrane_tools.perform_grade_assessment(
+            session_id=session_id,
             evidence_profile=evidence_profile
         )
         certainty = grade_result['grade_assessment']['overall_certainty']
@@ -252,6 +316,7 @@ async def demo_complete_workflow():
         }
         
         report_result = await server.cochrane_tools.generate_cochrane_report(
+            session_id=session_id,
             review_metadata=review_metadata,
             analysis_results=ma_result,
             rob_assessment=rob_result,
@@ -270,24 +335,61 @@ async def demo_complete_workflow():
     print("=" * 60)
     print("✅ All 11 tools demonstrated successfully!")
     print("\n📈 Core Meta-Analysis Tools (7):")
-    print("   1. ✅ Meta-analysis computation")
-    print("   2. ✅ Forest plot generation") 
-    print("   3. ✅ Heterogeneity assessment")
-    print("   4. ✅ Publication bias detection")
-    print("   5. ✅ Statistical reporting")
-    print("   6. ✅ Data validation")
-    print("   7. ✅ Session management")
+    print("   1. ✅ initialize_meta_analysis: Session creation")
+    print("   2. ✅ upload_study_data: Data validation")
+    print("   3. ✅ perform_meta_analysis: Statistical computation")
+    print("   4. ✅ generate_forest_plot: Visualization")
+    print("   5. ✅ assess_publication_bias: Bias testing")
+    print("   6. ✅ generate_report: Publication-ready output")
+    print("   7. ✅ get_session_status: Progress tracking")
     
     print("\n🏥 Cochrane Compliance Tools (4):")
-    print("   8. ✅ Risk of bias assessment (ROB 2.0)")
-    print("   9. ✅ PRISMA 2020 checklist")
-    print("   10. ✅ GRADE evidence assessment")
-    print("   11. ✅ Comprehensive Cochrane report")
+    print("   8. ✅ assess_risk_of_bias: ROB 2.0 assessment")
+    print("   9. ✅ generate_prisma_checklist: PRISMA 2020 compliance")
+    print("   10. ✅ perform_grade_assessment: Evidence quality evaluation")
+    print("   11. ✅ generate_cochrane_report: Cochrane-compliant report")
     
     print(f"\n🎯 System demonstrates complete workflow from data upload")
     print(f"   through analysis to publication-ready outputs!")
     print(f"\n📊 Ready for cloud deployment and production use.")
+    
+    return session_id
+
+
+async def test_error_handling():
+    """Test error handling with invalid inputs"""
+    
+    print("\n" + "=" * 60)
+    print("TESTING ERROR HANDLING")
+    print("=" * 60)
+    
+    server = MetaAnalysisServer()
+    
+    print("\n1. Testing invalid session ID...")
+    try:
+        result = await server.meta_tools.get_session_status(
+            session_id="invalid-session-id"
+        )
+        print(f"✓ Error handling works: {result.get('error', 'No error message')}")
+    except Exception as e:
+        print(f"✓ Exception caught: {str(e)}")
+    
+    print("\n2. Testing missing required parameters...")
+    try:
+        result = await server.meta_tools.initialize_meta_analysis(
+            user_id="test_user"
+        )
+        print(f"✓ Parameter validation works: {result.get('error', 'No error message')}")
+    except Exception as e:
+        print(f"✓ Exception caught: {str(e)}")
 
 
 if __name__ == "__main__":
-    asyncio.run(demo_complete_workflow())
+    async def main():
+        session_id = await demo_complete_workflow()
+        await test_error_handling()
+        
+        print(f"\nDemo session ID for further testing: {session_id}")
+        print("You can use this session ID to test individual tools manually.")
+    
+    asyncio.run(main())

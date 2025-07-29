@@ -10,10 +10,23 @@ RUN apt-get update && apt-get install -y \
     g++ \
     r-base \
     r-base-dev \
+    git \
+    curl \
+    libxml2-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libfontconfig1-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libtiff5-dev \
+    libjpeg-dev \
+    pandoc \
     && rm -rf /var/lib/apt/lists/*
 
 # Install R packages
-RUN R -e "install.packages(c('meta', 'metafor', 'DT', 'rmarkdown'), repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages(c('meta', 'metafor', 'metaSEM', 'nloptr', 'xml2', 'lme4', 'jsonlite', 'DT', 'rmarkdown', 'knitr', 'ggplot2'), repos='https://cran.rstudio.com/')"
 
 # Copy requirements first for better caching
 COPY requirements.txt pyproject.toml ./
@@ -33,6 +46,7 @@ RUN pip install -e .
 
 # Create output directory for R-generated plots
 RUN mkdir -p /app/output
+RUN chmod +x r_scripts/*.R
 
 # Expose port for HTTP server
 EXPOSE 8080
@@ -42,6 +56,7 @@ ENV PYTHONPATH=/app
 ENV PORT=8080
 ENV HTTP_MODE=true
 ENV HOST=0.0.0.0
+ENV R_LIBS_USER=/usr/local/lib/R/site-library
 
 # Health check using HTTP endpoint  
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
