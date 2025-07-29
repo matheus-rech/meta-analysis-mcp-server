@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #ffffff;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0066cc;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .authors {
+            font-size: 14px;
+            color: #888;
+            margin-top: 15px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0066cc;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .subsection-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .abstract {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid #0066cc;
+            margin-bottom: 30px;
+        }
+        
+        .key-findings {
+            background-color: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .rob-table {
+            margin: 20px 0;
+        }
+        
+        .rob-low { background-color: #d4edda; }
+        .rob-some { background-color: #fff3cd; }
+        .rob-high { background-color: #f8d7da; }
+        
+        .grade-table {
+            margin: 20px 0;
+        }
+        
+        .grade-high { background-color: #d4edda; }
+        .grade-moderate { background-color: #d1ecf1; }
+        .grade-low { background-color: #fff3cd; }
+        .grade-very-low { background-color: #f8d7da; }
+        
+        .forest-plot {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .forest-plot img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+        }
+        
+        .prisma-flow {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .references {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .reference-item {
+            margin-bottom: 8px;
+            text-indent: -20px;
+            padding-left: 20px;
+        }
+        
+        .appendix {
+            page-break-before: always;
+            margin-top: 40px;
+        }
+        
+        .quality-score {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .score-excellent { color: #28a745; }
+        .score-good { color: #17a2b8; }
+        .score-fair { color: #ffc107; }
+        .score-poor { color: #dc3545; }
+        
+        @media print {
+            body { margin: 0; }
+            .section { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">{{ title }}</div>
+        <div class="subtitle">Cochrane Systematic Review</div>
+        <div class="authors">
+            {% for author in authors %}
+                {{ author }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </div>
+        <div class="authors">
+            Generated: {{ generation_date }}
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Abstract</div>
+        <div class="abstract">
+            {{ abstract }}
+        </div>
+    </div>
+
+    {% if key_findings %}
+    <div class="section">
+        <div class="section-title">Key Findings</div>
+        <div class="key-findings">
+            <strong>Main Results:</strong> {{ key_findings.main_results }}<br>
+            <strong>Quality of Evidence:</strong> {{ key_findings.quality }}<br>
+            <strong>Clinical Implications:</strong> {{ key_findings.implications }}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <div class="section-title">Background</div>
+        {{ background }}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Objectives</div>
+        {{ objectives }}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Methods</div>
+        {{ methods }}
+        
+        {% if search_strategy %}
+        <div class="subsection-title">Search Strategy</div>
+        {{ search_strategy }}
+        {% endif %}
+        
+        {% if selection_criteria %}
+        <div class="subsection-title">Selection Criteria</div>
+        {{ selection_criteria }}
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Results</div>
+        {{ results }}
+        
+        {% if meta_analysis_results %}
+        <div class="subsection-title">Meta-Analysis Results</div>
+        <table class="table">
+            <tr>
+                <th>Outcome</th>
+                <th>Studies</th>
+                <th>Participants</th>
+                <th>Effect Size (95% CI)</th>
+                <th>I²</th>
+                <th>Quality</th>
+            </tr>
+            {% for result in meta_analysis_results %}
+            <tr>
+                <td>{{ result.outcome }}</td>
+                <td>{{ result.studies }}</td>
+                <td>{{ result.participants }}</td>
+                <td>{{ result.effect_size }} ({{ result.ci_lower }}, {{ result.ci_upper }})</td>
+                <td>{{ result.i_squared }}%</td>
+                <td>{{ result.quality }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+        
+        {% if forest_plot %}
+        <div class="forest-plot">
+            <div class="subsection-title">Forest Plot</div>
+            <img src="data:image/png;base64,{{ forest_plot }}" alt="Forest Plot">
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Discussion</div>
+        {{ discussion }}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Authors' Conclusions</div>
+        {{ conclusions }}
+    </div>
+
+    {% if quality_score %}
+    <div class="section">
+        <div class="section-title">Report Quality Assessment</div>
+        <div class="quality-score">
+            <strong>Overall Quality Score: 
+                <span class="score-{{ quality_score.grade.lower() }}">
+                    {{ quality_score.score }}/100 ({{ quality_score.grade }})
+                </span>
+            </strong><br>
+            <small>{{ quality_score.interpretation }}</small>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Appendices -->
+    <div class="appendix">
+        <div class="section-title">Appendix A: Risk of Bias Assessment</div>
+        {% if rob_assessment %}
+        <table class="table rob-table">
+            <tr>
+                <th>Study</th>
+                <th>Randomization</th>
+                <th>Deviations</th>
+                <th>Missing Data</th>
+                <th>Outcome Measurement</th>
+                <th>Selective Reporting</th>
+                <th>Overall</th>
+            </tr>
+            {% for study in rob_assessment.studies %}
+            <tr>
+                <td>{{ study.study_id }}</td>
+                <td class="rob-{{ study.randomization.lower().replace(' ', '-') }}">{{ study.randomization }}</td>
+                <td class="rob-{{ study.deviations.lower().replace(' ', '-') }}">{{ study.deviations }}</td>
+                <td class="rob-{{ study.missing_data.lower().replace(' ', '-') }}">{{ study.missing_data }}</td>
+                <td class="rob-{{ study.outcome_measurement.lower().replace(' ', '-') }}">{{ study.outcome_measurement }}</td>
+                <td class="rob-{{ study.selective_reporting.lower().replace(' ', '-') }}">{{ study.selective_reporting }}</td>
+                <td class="rob-{{ study.overall.lower().replace(' ', '-') }}">{{ study.overall }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+
+    <div class="appendix">
+        <div class="section-title">Appendix B: GRADE Evidence Profile</div>
+        {% if grade_assessment %}
+        <table class="table grade-table">
+            <tr>
+                <th>Outcome</th>
+                <th>Risk of Bias</th>
+                <th>Inconsistency</th>
+                <th>Indirectness</th>
+                <th>Imprecision</th>
+                <th>Publication Bias</th>
+                <th>Overall Certainty</th>
+            </tr>
+            {% for outcome in grade_assessment.outcomes %}
+            <tr>
+                <td>{{ outcome.name }}</td>
+                <td>{{ outcome.risk_of_bias }}</td>
+                <td>{{ outcome.inconsistency }}</td>
+                <td>{{ outcome.indirectness }}</td>
+                <td>{{ outcome.imprecision }}</td>
+                <td>{{ outcome.publication_bias }}</td>
+                <td class="grade-{{ outcome.certainty.lower().replace(' ', '-') }}">{{ outcome.certainty }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+
+    <div class="appendix">
+        <div class="section-title">Appendix C: PRISMA Checklist</div>
+        {% if prisma_checklist %}
+        <table class="table">
+            <tr>
+                <th>Item</th>
+                <th>Section</th>
+                <th>Description</th>
+                <th>Compliant</th>
+            </tr>
+            {% for item in prisma_checklist.items %}
+            <tr>
+                <td>{{ item.number }}</td>
+                <td>{{ item.section }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ "✓" if item.compliant else "✗" }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <p><strong>Compliance Score:</strong> {{ prisma_checklist.score }}% ({{ prisma_checklist.compliant_items }}/{{ prisma_checklist.total_items }} items)</p>
+        {% endif %}
+    </div>
+
+    {% if references %}
+    <div class="section references">
+        <div class="section-title">References</div>
+        {% for reference in references %}
+        <div class="reference-item">
+            {{ loop.index }}. {{ reference }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</body>
+</html>

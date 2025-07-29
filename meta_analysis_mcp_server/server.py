@@ -248,7 +248,7 @@ class MetaAnalysisServer:
                             },
                             "generate_flow_diagram": {
                                 "type": "boolean",
-                                "default": true
+                                "default": True
                             },
                             "screening_data": {
                                 "type": "object",
@@ -291,11 +291,11 @@ class MetaAnalysisServer:
                             "assessment_criteria": {
                                 "type": "object",
                                 "properties": {
-                                    "assess_risk_of_bias": {"type": "boolean", "default": true},
-                                    "assess_inconsistency": {"type": "boolean", "default": true},
-                                    "assess_indirectness": {"type": "boolean", "default": true},
-                                    "assess_imprecision": {"type": "boolean", "default": true},
-                                    "assess_publication_bias": {"type": "boolean", "default": true}
+                                    "assess_risk_of_bias": {"type": "boolean", "default": True},
+                                    "assess_inconsistency": {"type": "boolean", "default": True},
+                                    "assess_indirectness": {"type": "boolean", "default": True},
+                                    "assess_imprecision": {"type": "boolean", "default": True},
+                                    "assess_publication_bias": {"type": "boolean", "default": True}
                                 }
                             }
                         },

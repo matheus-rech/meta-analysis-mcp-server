@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  meta-analysis-mcp:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - MCP_SERVER_NAME=meta-analysis-mcp-server
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import meta_analysis_mcp_server.server; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  data:
+  outputs:
