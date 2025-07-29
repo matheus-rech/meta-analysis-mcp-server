@@ -234,16 +234,29 @@ async def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    server = HTTPMetaAnalysisServer()
-    runner = await server.start_server(host, port)
+    logger.info(f"Starting HTTP server with host={host}, port={port}")
+    logger.info(f"Environment variables: HTTP_MODE={os.getenv('HTTP_MODE')}, PORT={os.getenv('PORT')}")
     
     try:
-        while True:
-            await asyncio.sleep(3600)  # Sleep for 1 hour
-    except KeyboardInterrupt:
-        logger.info("Shutting down server...")
-    finally:
-        await runner.cleanup()
+        server = HTTPMetaAnalysisServer()
+        logger.info("HTTPMetaAnalysisServer created successfully")
+        
+        runner = await server.start_server(host, port)
+        logger.info("Server started successfully, entering main loop")
+        
+        try:
+            while True:
+                await asyncio.sleep(3600)  # Sleep for 1 hour
+        except KeyboardInterrupt:
+            logger.info("Shutting down server...")
+        finally:
+            await runner.cleanup()
+            
+    except Exception as e:
+        logger.error(f"Failed to start server: {e}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise
 
 
 if __name__ == "__main__":
