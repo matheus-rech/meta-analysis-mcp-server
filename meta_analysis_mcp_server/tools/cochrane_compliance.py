@@ -934,9 +934,9 @@ class CochraneComplianceTools:
             "confidence_interval": evidence_profile.get("confidence_interval", "Not reported"),
             "certainty_of_evidence": grade_results["overall_certainty"],
             "downgrade_reasons": [
-                f"{domain}: {assessment['reasoning']}"
-                for domain, assessment in grade_results["domain_assessments"].items()
-                if assessment["downgrade_points"] > 0
+                f"{domain}: {assessment.get('reasoning', 'No reasoning provided')}"
+                for domain, assessment in grade_results.get("domain_assessments", {}).items()
+                if assessment.get("downgrade_points", 0) > 0
             ]
         }
 
@@ -1014,7 +1014,7 @@ class CochraneComplianceTools:
             # Compliance indicators
             report_data["compliance_indicators"] = {
                 "cochrane_handbook_compliance": True,
-                "prisma_compliance": prisma_checklist["compliance_score"]["percentage"] if prisma_checklist else 0,
+                "prisma_compliance": prisma_checklist.get("compliance_score", {}).get("percentage", 0) if prisma_checklist else 0,
                 "grade_assessment_included": grade_assessment is not None,
                 "rob_assessment_included": rob_assessment is not None,
                 "overall_quality_score": self._calculate_report_quality_score(
@@ -1167,8 +1167,8 @@ class CochraneComplianceTools:
         """Calculate overall report quality score."""
         score = 0.0
         
-        if prisma:
-            score += prisma["compliance_score"]["percentage"] * 0.4  # 40% weight
+        if prisma and "compliance_score" in prisma:
+            score += prisma["compliance_score"].get("percentage", 0) * 0.4  # 40% weight
         
         if grade:
             score += 30.0  # 30 points for GRADE inclusion
