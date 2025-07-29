@@ -78,15 +78,48 @@ class HTTPMetaAnalysisServer:
     async def list_tools(self, request: web_request.Request) -> web_response.Response:
         """List available MCP tools."""
         try:
-            tools = await self.mcp_server._setup_handlers.__wrapped__(self.mcp_server)
-            tools_list = []
-            
-            for tool in tools:
-                tools_list.append({
-                    "name": tool.name,
-                    "description": tool.description,
-                    "inputSchema": tool.inputSchema
-                })
+            tools_list = [
+                {
+                    "name": "perform_meta_analysis",
+                    "description": "Perform statistical meta-analysis with effect size calculations",
+                    "category": "meta-analysis"
+                },
+                {
+                    "name": "create_forest_plot", 
+                    "description": "Generate forest plot visualization",
+                    "category": "meta-analysis"
+                },
+                {
+                    "name": "assess_heterogeneity",
+                    "description": "Evaluate between-study heterogeneity", 
+                    "category": "meta-analysis"
+                },
+                {
+                    "name": "detect_publication_bias",
+                    "description": "Assess publication bias using funnel plots and statistical tests",
+                    "category": "meta-analysis"
+                },
+                {
+                    "name": "assess_risk_of_bias",
+                    "description": "Cochrane ROB 2.0 risk of bias assessment",
+                    "category": "cochrane-compliance"
+                },
+                {
+                    "name": "generate_prisma_checklist",
+                    "description": "Generate PRISMA 2020 compliance checklist",
+                    "category": "cochrane-compliance"
+                },
+                {
+                    "name": "perform_grade_assessment", 
+                    "description": "GRADE evidence quality assessment",
+                    "category": "cochrane-compliance"
+                },
+                {
+                    "name": "generate_cochrane_report",
+                    "description": "Generate Cochrane-compliant systematic review report",
+                    "category": "cochrane-compliance"
+                }
+            ]
             
             return web.json_response({
                 "tools": tools_list,
@@ -109,32 +142,23 @@ class HTTPMetaAnalysisServer:
             else:
                 arguments = {}
             
-            result = await self.mcp_server._setup_handlers.__wrapped__(self.mcp_server)
-            
-            handler = getattr(self.mcp_server, '_setup_handlers', None)
-            if handler:
-                if hasattr(self.mcp_server.meta_tools, tool_name):
-                    method = getattr(self.mcp_server.meta_tools, tool_name)
-                    result = await method(**arguments)
-                elif hasattr(self.mcp_server.cochrane_tools, tool_name):
-                    method = getattr(self.mcp_server.cochrane_tools, tool_name)
-                    result = await method(**arguments)
-                else:
-                    return web.json_response(
-                        {"error": f"Tool '{tool_name}' not found"}, 
-                        status=404
-                    )
-                
-                return web.json_response({
-                    "tool": tool_name,
-                    "result": result,
-                    "success": True
-                })
+            if hasattr(self.mcp_server.meta_tools, tool_name):
+                method = getattr(self.mcp_server.meta_tools, tool_name)
+                result = await method(**arguments)
+            elif hasattr(self.mcp_server.cochrane_tools, tool_name):
+                method = getattr(self.mcp_server.cochrane_tools, tool_name)
+                result = await method(**arguments)
             else:
                 return web.json_response(
-                    {"error": "MCP server not properly initialized"}, 
-                    status=500
+                    {"error": f"Tool '{tool_name}' not found"}, 
+                    status=404
                 )
+            
+            return web.json_response({
+                "tool": tool_name,
+                "result": result,
+                "success": True
+            })
                 
         except Exception as e:
             logger.error(f"Error calling tool {tool_name}: {e}")
@@ -159,14 +183,16 @@ class HTTPMetaAnalysisServer:
             request_id = rpc_request.get('id')
             
             if method == 'tools/list':
-                tools = await self.mcp_server._setup_handlers.__wrapped__(self.mcp_server)
-                tools_data = []
-                for tool in tools:
-                    tools_data.append({
-                        "name": tool.name,
-                        "description": tool.description,
-                        "inputSchema": tool.inputSchema
-                    })
+                tools_data = [
+                    {"name": "perform_meta_analysis", "description": "Perform statistical meta-analysis"},
+                    {"name": "create_forest_plot", "description": "Generate forest plot visualization"},
+                    {"name": "assess_heterogeneity", "description": "Evaluate between-study heterogeneity"},
+                    {"name": "detect_publication_bias", "description": "Assess publication bias"},
+                    {"name": "assess_risk_of_bias", "description": "Cochrane ROB 2.0 assessment"},
+                    {"name": "generate_prisma_checklist", "description": "Generate PRISMA 2020 checklist"},
+                    {"name": "perform_grade_assessment", "description": "GRADE evidence assessment"},
+                    {"name": "generate_cochrane_report", "description": "Generate Cochrane report"}
+                ]
                 
                 response = {
                     "jsonrpc": "2.0",

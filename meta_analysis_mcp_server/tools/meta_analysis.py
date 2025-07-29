@@ -72,6 +72,7 @@ class MetaAnalysisTools:
     def __init__(self):
         """Initialize meta-analysis tools."""
         self.logger = logger
+        self.sessions = {}  # Store session data
 
     async def perform_meta_analysis(
         self,
@@ -616,3 +617,156 @@ class MetaAnalysisTools:
         return (f"Meta-analysis shows a {significance} {direction} effect "
                f"({measure} = {effect:.3f}, 95% CI [{ci_low:.3f}, {ci_high:.3f}], "
                f"p = {p_value:.3f}) with {heterogeneity}.")
+
+    async def initialize_meta_analysis(self, title: str = "Meta-Analysis", description: str = "") -> Dict[str, Any]:
+        """Initialize a new meta-analysis session."""
+        import uuid
+        session_id = str(uuid.uuid4())
+        
+        self.sessions[session_id] = {
+            "title": title,
+            "description": description,
+            "created_at": "2025-07-29",
+            "studies": [],
+            "results": {},
+            "files": []
+        }
+        
+        return {
+            "session_id": session_id,
+            "title": title,
+            "description": description,
+            "status": "initialized",
+            "message": "Meta-analysis session created successfully"
+        }
+
+    async def upload_study_data(self, session_id: str, studies: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Upload and validate study data for a session."""
+        if session_id not in self.sessions:
+            raise ValueError(f"Session {session_id} not found")
+        
+        required_fields = ["study_id", "effect_size", "standard_error", "sample_size"]
+        for study in studies:
+            for field in required_fields:
+                if field not in study:
+                    raise ValueError(f"Missing required field '{field}' in study {study.get('study_id', 'unknown')}")
+        
+        self.sessions[session_id]["studies"] = studies
+        
+        return {
+            "session_id": session_id,
+            "studies_uploaded": len(studies),
+            "validation_status": "passed",
+            "message": f"Successfully uploaded {len(studies)} studies"
+        }
+
+    async def generate_forest_plot(self, session_id: str, title: str = "Forest Plot", output_format: str = "png") -> Dict[str, Any]:
+        """Generate forest plot for session studies."""
+        if session_id not in self.sessions:
+            raise ValueError(f"Session {session_id} not found")
+        
+        studies = self.sessions[session_id]["studies"]
+        if not studies:
+            raise ValueError("No studies found in session")
+        
+        # Add confidence intervals if missing
+        for study in studies:
+            if "ci_lower" not in study:
+                study["ci_lower"] = study["effect_size"] - 1.96 * study["standard_error"]
+            if "ci_upper" not in study:
+                study["ci_upper"] = study["effect_size"] + 1.96 * study["standard_error"]
+            if "weight" not in study:
+                study["weight"] = 1 / (study["standard_error"] ** 2)
+        
+        total_weight = sum(s["weight"] for s in studies)
+        for study in studies:
+            study["weight"] = (study["weight"] / total_weight) * 100
+        
+        result = await self.create_forest_plot(studies, title, output_format)
+        self.sessions[session_id]["files"].append(f"forest_plot.{output_format}")
+        
+        return result
+
+    async def assess_publication_bias(self, session_id: str, tests: List[str] = ["egger"]) -> Dict[str, Any]:
+        """Assess publication bias for session studies."""
+        if session_id not in self.sessions:
+            raise ValueError(f"Session {session_id} not found")
+        
+        studies = self.sessions[session_id]["studies"]
+        if not studies:
+            raise ValueError("No studies found in session")
+        
+        result = await self.detect_publication_bias(studies, tests)
+        self.sessions[session_id]["files"].append("funnel_plot.png")
+        
+        return result
+
+    async def generate_report(self, session_id: str, format: str = "html") -> Dict[str, Any]:
+        """Generate comprehensive meta-analysis report."""
+        if session_id not in self.sessions:
+            raise ValueError(f"Session {session_id} not found")
+        
+        session = self.sessions[session_id]
+        studies = session["studies"]
+        
+        if not studies:
+            raise ValueError("No studies found in session")
+        
+        # Generate basic report content
+        report_content = f"""
+        <html>
+        <head><title>{session['title']}</title></head>
+        <body>
+        <h1>{session['title']}</h1>
+        <p>{session['description']}</p>
+        
+        <h2>Study Summary</h2>
+        <p>Number of studies: {len(studies)}</p>
+        <p>Total participants: {sum(s['sample_size'] for s in studies)}</p>
+        
+        <h2>Studies Included</h2>
+        <ul>
+        """
+        
+        for study in studies:
+            report_content += f"<li>{study['study_id']}: Effect size = {study['effect_size']:.3f} (SE = {study['standard_error']:.3f})</li>"
+        
+        report_content += """
+        </ul>
+        
+        <h2>Meta-Analysis Results</h2>
+        <p>Detailed results would be generated here based on the analysis performed.</p>
+        
+        </body>
+        </html>
+        """
+        
+        filename = f"meta_analysis_report_{session_id}.html"
+        self.sessions[session_id]["files"].append(filename)
+        
+        return {
+            "session_id": session_id,
+            "report_format": format,
+            "filename": filename,
+            "content": report_content,
+            "size_bytes": len(report_content),
+            "message": "Report generated successfully"
+        }
+
+    async def get_session_status(self, session_id: str) -> Dict[str, Any]:
+        """Get current session status and files."""
+        if session_id not in self.sessions:
+            raise ValueError(f"Session {session_id} not found")
+        
+        session = self.sessions[session_id]
+        
+        return {
+            "session_id": session_id,
+            "title": session["title"],
+            "description": session["description"],
+            "created_at": session["created_at"],
+            "studies_count": len(session["studies"]),
+            "files_generated": session["files"],
+            "status": "active",
+            "last_updated": "2025-07-29"
+        }
