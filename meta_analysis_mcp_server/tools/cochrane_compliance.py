@@ -68,7 +68,8 @@ class CochraneComplianceTools:
 
     async def assess_risk_of_bias(
         self,
-        studies: List[Dict[str, Any]],
+        studies: List[Dict[str, Any]] = None,
+        session_id: str = None,
         assessment_mode: str = "hybrid",
         domains: List[str] = None
     ) -> Dict[str, Any]:
@@ -76,7 +77,8 @@ class CochraneComplianceTools:
         Perform Cochrane ROB 2.0 risk of bias assessment.
         
         Args:
-            studies: List of studies to assess
+            studies: List of studies to assess (optional if session_id provided)
+            session_id: Session ID to use studies from session (optional if studies provided)
             assessment_mode: Assessment mode (automated, manual, hybrid)
             domains: ROB domains to assess
             
@@ -84,8 +86,10 @@ class CochraneComplianceTools:
             Risk of bias assessment results
         """
         try:
-            if not studies:
-                raise ValueError("No studies provided for risk of bias assessment")
+            if session_id and hasattr(self, 'meta_tools') and session_id in self.meta_tools.sessions:
+                studies = self.meta_tools.sessions[session_id]["studies"]
+            elif not studies:
+                raise ValueError("Either studies list or valid session_id must be provided")
 
             if domains is None:
                 domains = self.rob_domains.copy()
@@ -363,7 +367,8 @@ class CochraneComplianceTools:
 
     async def generate_prisma_checklist(
         self,
-        review_data: Dict[str, Any],
+        review_data: Dict[str, Any] = None,
+        session_id: str = None,
         generate_flow_diagram: bool = True,
         screening_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
@@ -371,7 +376,8 @@ class CochraneComplianceTools:
         Generate PRISMA 2020 compliance checklist.
         
         Args:
-            review_data: Systematic review metadata
+            review_data: Systematic review metadata (optional if session_id provided)
+            session_id: Session ID to use review data from session (optional if review_data provided)
             generate_flow_diagram: Whether to generate flow diagram
             screening_data: Study screening numbers
             
@@ -379,6 +385,15 @@ class CochraneComplianceTools:
             PRISMA checklist with compliance scoring
         """
         try:
+            if session_id and hasattr(self, 'meta_tools') and session_id in self.meta_tools.sessions:
+                session_data = self.meta_tools.sessions[session_id]
+                review_data = {
+                    "title": session_data.get("title", "Meta-Analysis Review"),
+                    "description": session_data.get("description", ""),
+                    "studies": session_data.get("studies", [])
+                }
+            elif not review_data:
+                raise ValueError("Either review_data or valid session_id must be provided")
             prisma_results = {
                 "checklist_summary": {
                     "prisma_version": "PRISMA 2020",
@@ -650,20 +665,32 @@ class CochraneComplianceTools:
 
     async def perform_grade_assessment(
         self,
-        evidence_profile: Dict[str, Any],
+        evidence_profile: Dict[str, Any] = None,
+        session_id: str = None,
         assessment_criteria: Optional[Dict[str, bool]] = None
     ) -> Dict[str, Any]:
         """
         Perform GRADE evidence quality assessment.
         
         Args:
-            evidence_profile: Evidence profile data
+            evidence_profile: Evidence profile data (optional if session_id provided)
+            session_id: Session ID to use evidence data from session (optional if evidence_profile provided)
             assessment_criteria: Which criteria to assess
             
         Returns:
             GRADE assessment results
         """
         try:
+            if session_id and hasattr(self, 'meta_tools') and session_id in self.meta_tools.sessions:
+                session_data = self.meta_tools.sessions[session_id]
+                evidence_profile = {
+                    "outcome": "Primary outcome",
+                    "studies": len(session_data.get("studies", [])),
+                    "participants": sum(s.get("sample_size", 0) for s in session_data.get("studies", [])),
+                    "study_design": "RCT"
+                }
+            elif not evidence_profile:
+                raise ValueError("Either evidence_profile or valid session_id must be provided")
             if assessment_criteria is None:
                 assessment_criteria = {
                     "assess_risk_of_bias": True,
@@ -915,7 +942,8 @@ class CochraneComplianceTools:
 
     async def generate_cochrane_report(
         self,
-        review_metadata: Dict[str, Any],
+        review_metadata: Dict[str, Any] = None,
+        session_id: str = None,
         analysis_results: Optional[Dict[str, Any]] = None,
         rob_assessment: Optional[Dict[str, Any]] = None,
         prisma_checklist: Optional[Dict[str, Any]] = None,
@@ -926,7 +954,8 @@ class CochraneComplianceTools:
         Generate Cochrane-compliant systematic review report.
         
         Args:
-            review_metadata: Review metadata and content
+            review_metadata: Review metadata and content (optional if session_id provided)
+            session_id: Session ID to use review data from session (optional if review_metadata provided)
             analysis_results: Meta-analysis results
             rob_assessment: Risk of bias assessment
             prisma_checklist: PRISMA checklist results
@@ -937,6 +966,16 @@ class CochraneComplianceTools:
             Cochrane-compliant report
         """
         try:
+            if session_id and hasattr(self, 'meta_tools') and session_id in self.meta_tools.sessions:
+                session_data = self.meta_tools.sessions[session_id]
+                review_metadata = {
+                    "title": session_data.get("title", "Systematic Review and Meta-Analysis"),
+                    "description": session_data.get("description", ""),
+                    "authors": ["Research Team"],
+                    "studies": session_data.get("studies", [])
+                }
+            elif not review_metadata:
+                raise ValueError("Either review_metadata or valid session_id must be provided")
             report_data = {
                 "report_metadata": {
                     "title": review_metadata.get("title", ""),
