@@ -328,6 +328,16 @@ class MetaAnalysisTools:
             # Call R script to create forest plot
             forest_plot_result = run_r_script("create_forest_plot", forest_plot_data)
             
+            if isinstance(forest_plot_result, str):
+                try:
+                    forest_plot_result = json.loads(forest_plot_result)
+                except json.JSONDecodeError:
+                    return ToolResponse(
+                        success=False,
+                        data={"error": "Failed to parse forest plot result JSON"},
+                        errors=["Failed to parse forest plot result JSON"]
+                    )
+            
             if not forest_plot_result.get("success", False):
                 return ToolResponse(
                     success=False,
@@ -380,7 +390,7 @@ class MetaAnalysisTools:
         self,
         studies: List[Dict[str, Any]] = None,
         session_id: str = None
-    ) -> Dict[str, Any]:
+    ) -> ToolResponse:
         """
         Assess between-study heterogeneity using R.
         
@@ -389,16 +399,26 @@ class MetaAnalysisTools:
             session_id: Session ID to use studies from session (optional if studies provided)
             
         Returns:
-            Heterogeneity assessment results
+            ToolResponse containing heterogeneity assessment results
         """
+        start_time = datetime.now()
+        
         try:
             if session_id and session_id in self.sessions:
                 studies = self.sessions[session_id]["studies"]
             elif not studies:
-                raise ValueError("Either studies list or valid session_id must be provided")
+                return ToolResponse(
+                    success=False,
+                    data={"error": "Either studies list or valid session_id must be provided"},
+                    errors=["Either studies list or valid session_id must be provided"]
+                )
                 
             if len(studies) < 2:
-                raise ValueError("At least 2 studies required for heterogeneity assessment")
+                return ToolResponse(
+                    success=False,
+                    data={"error": "At least 2 studies required for heterogeneity assessment"},
+                    errors=["At least 2 studies required for heterogeneity assessment"]
+                )
 
             effect_sizes = [s["effect_size"] for s in studies]
             standard_errors = [s.get("standard_error", 0.1) for s in studies]
@@ -414,35 +434,45 @@ class MetaAnalysisTools:
             
             r_results = run_r_script("perform_meta_analysis", input_data)
             
+            if isinstance(r_results, str):
+                try:
+                    r_results = json.loads(r_results)
+                except json.JSONDecodeError as e:
+                    return ToolResponse(
+                        success=False,
+                        data={"error": f"Failed to parse R results: {str(e)}"},
+                        errors=[f"Failed to parse R results: {str(e)}"]
+                    )
+            
             if "error" in r_results:
-                raise RuntimeError(f"R heterogeneity assessment failed: {r_results['error']}")
+                return ToolResponse(
+                    success=False,
+                    data={"error": f"R heterogeneity assessment failed: {r_results['error']}"},
+                    errors=[f"R heterogeneity assessment failed: {r_results['error']}"]
+                )
             
             # Calculate weights and deviations for study contributions
             weights = [1 / v for v in variances]
             total_weight = sum(weights)
             pooled_effect = float(r_results["estimate"])
             
-            return {
-                "heterogeneity_assessment": {
-                    "Q_statistic": float(r_results["q_statistic"]),
-                    "degrees_of_freedom": int(r_results["q_df"]),
-                    "p_value": float(r_results["q_p_value"]),
-                    "I_squared": float(r_results["i_squared"]),
-                    "tau_squared": float(r_results["tau_squared"]),
-                    "H_squared": float(r_results["h_squared"]),
-                    "significant_heterogeneity": float(r_results["q_p_value"]) < 0.10,  # Traditional threshold
-                    "interpretation": {
-                        "I_squared_level": self._interpret_heterogeneity(float(r_results["i_squared"])),
-                        "clinical_significance": self._assess_clinical_heterogeneity(
-                            float(r_results["i_squared"]), 
-                            float(r_results["tau_squared"])
-                        ),
-                        "recommendation": self._heterogeneity_recommendation(
-                            float(r_results["i_squared"]), 
-                            float(r_results["q_p_value"])
-                        )
-                    }
-                },
+            heterogeneity_data = {
+                "tau_squared": float(r_results["tau_squared"]),
+                "i_squared": float(r_results["i_squared"]),
+                "h_squared": float(r_results["h_squared"]),
+                "q_statistic": float(r_results["q_statistic"]),
+                "q_df": int(r_results["q_df"]),
+                "q_p_value": float(r_results["q_p_value"]),
+                "significant_heterogeneity": float(r_results["q_p_value"]) < 0.10,
+                "interpretation": self._interpret_heterogeneity(float(r_results["i_squared"])),
+                "clinical_significance": self._assess_clinical_heterogeneity(
+                    float(r_results["i_squared"]), 
+                    float(r_results["tau_squared"])
+                ),
+                "recommendation": self._heterogeneity_recommendation(
+                    float(r_results["i_squared"]), 
+                    float(r_results["q_p_value"])
+                ),
                 "study_contributions": [
                     {
                         "study_id": study_ids[i],
@@ -455,9 +485,24 @@ class MetaAnalysisTools:
                 "analysis_method": "R metafor package"
             }
             
+            execution_time = (datetime.now() - start_time).total_seconds() * 1000
+            
+            return ToolResponse(
+                success=True,
+                data=heterogeneity_data,
+                message=f"Heterogeneity assessment completed for {len(studies)} studies using R",
+                execution_time_ms=execution_time
+            )
+            
         except Exception as e:
+            execution_time = (datetime.now() - start_time).total_seconds() * 1000
             self.logger.error(f"Error assessing heterogeneity: {e}")
-            raise
+            return ToolResponse(
+                success=False,
+                data={"error": f"Heterogeneity assessment failed: {str(e)}"},
+                errors=[f"Heterogeneity assessment failed: {str(e)}"],
+                execution_time_ms=execution_time
+            )
 
     async def detect_publication_bias(
         self,
@@ -508,6 +553,16 @@ class MetaAnalysisTools:
             
             r_results = run_r_script("assess_publication_bias", input_data)
             
+            if isinstance(r_results, str):
+                try:
+                    r_results = json.loads(r_results)
+                except json.JSONDecodeError as e:
+                    return ToolResponse(
+                        success=False,
+                        data={"error": f"Failed to parse R results: {str(e)}"},
+                        errors=[f"Failed to parse R results: {str(e)}"]
+                    )
+            
             if "error" in r_results:
                 return ToolResponse(
                     success=False,
@@ -526,6 +581,13 @@ class MetaAnalysisTools:
             }
             
             funnel_plot_result = run_r_script("create_funnel_plot", funnel_plot_data)
+            
+            if isinstance(funnel_plot_result, str):
+                try:
+                    funnel_plot_result = json.loads(funnel_plot_result)
+                except json.JSONDecodeError:
+                    self.logger.warning("Failed to parse funnel plot result JSON, using fallback")
+                    funnel_plot_result = {"success": False, "error": "JSON parsing failed"}
             
             if not funnel_plot_result.get("success", False):
                 self.logger.warning(f"Failed to generate funnel plot in R: {funnel_plot_result.get('error', 'Unknown error')}")
@@ -580,38 +642,66 @@ class MetaAnalysisTools:
                 }
             
             # Create validated PublicationBiasTest objects
-            egger_test = PublicationBiasTest(
-                test_name="Egger's test",
-                statistic=float(r_results["egger_test"]["statistic"]),
-                p_value=float(r_results["egger_test"]["p_value"]),
-                interpretation="Evidence of publication bias" if r_results["egger_test"]["significant"] else "No evidence of publication bias"
-            )
-            
-            begg_test = PublicationBiasTest(
-                test_name="Begg's test", 
-                statistic=float(r_results["begg_test"]["statistic"]),
-                p_value=float(r_results["begg_test"]["p_value"]),
-                interpretation="Evidence of publication bias" if r_results["begg_test"]["significant"] else "No evidence of publication bias"
-            )
+            try:
+                egger_test = PublicationBiasTest(
+                    test_name="Egger's test",
+                    statistic=float(r_results["egger_test"]["statistic"]),
+                    p_value=float(r_results["egger_test"]["p_value"]),
+                    significant=bool(r_results["egger_test"]["significant"]),
+                    interpretation="Evidence of publication bias" if r_results["egger_test"]["significant"] else "No evidence of publication bias"
+                )
+                
+                begg_test = PublicationBiasTest(
+                    test_name="Begg's test", 
+                    statistic=float(r_results["begg_test"]["statistic"]),
+                    p_value=float(r_results["begg_test"]["p_value"]),
+                    significant=bool(r_results["begg_test"]["significant"]),
+                    interpretation="Evidence of publication bias" if r_results["begg_test"]["significant"] else "No evidence of publication bias"
+                )
+            except (KeyError, TypeError, ValueError) as e:
+                return ToolResponse(
+                    success=False,
+                    data={"error": f"Failed to parse R publication bias results: {str(e)}"},
+                    errors=[f"Failed to parse R publication bias results: {str(e)}"]
+                )
             
             # Overall assessment
             bias_evidence = []
-            if r_results["egger_test"]["significant"]:
-                bias_evidence.append("Egger's test")
-            if r_results["begg_test"]["significant"]:
-                bias_evidence.append("Begg's test")
+            try:
+                if r_results["egger_test"]["significant"]:
+                    bias_evidence.append("Egger's test")
+                if r_results["begg_test"]["significant"]:
+                    bias_evidence.append("Begg's test")
+            except (KeyError, TypeError) as e:
+                return ToolResponse(
+                    success=False,
+                    data={"error": f"Failed to access R results for bias evidence: {str(e)}"},
+                    errors=[f"Failed to access R results for bias evidence: {str(e)}"]
+                )
             
             conclusion = self._publication_bias_recommendation(len(bias_evidence), len(validated_studies))
             
             # Create validated PublicationBiasResult
-            bias_result = PublicationBiasResult(
-                funnel_plot=funnel_plot_path if os.path.exists(funnel_plot_path) else "plotly_generated",
-                tests_performed=tests,
-                egger_test=egger_test,
-                begg_test=begg_test,
-                conclusion=conclusion,
-                studies_analyzed=len(validated_studies)
-            )
+            try:
+                if 'funnel_plot_path' in locals() and os.path.exists(funnel_plot_path):
+                    funnel_plot_file = funnel_plot_path
+                else:
+                    funnel_plot_file = "plotly_generated_funnel_plot"
+                
+                bias_result = PublicationBiasResult(
+                    funnel_plot=funnel_plot_file,
+                    tests_performed=["egger", "begg"],
+                    egger_test=egger_test,
+                    begg_test=begg_test,
+                    conclusion=conclusion,
+                    studies_analyzed=len(validated_studies)
+                )
+            except Exception as e:
+                return ToolResponse(
+                    success=False,
+                    data={"error": f"Failed to create PublicationBiasResult: {str(e)}"},
+                    errors=[f"Failed to create PublicationBiasResult: {str(e)}"]
+                )
             
             execution_time = (datetime.now() - start_time).total_seconds() * 1000
             
