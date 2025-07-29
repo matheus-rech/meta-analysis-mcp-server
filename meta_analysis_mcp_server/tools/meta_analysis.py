@@ -76,7 +76,8 @@ class MetaAnalysisTools:
 
     async def perform_meta_analysis(
         self,
-        studies: List[Dict[str, Any]],
+        studies: List[Dict[str, Any]] = None,
+        session_id: str = None,
         method: str = "random",
         measure: str = "SMD"
     ) -> Dict[str, Any]:
@@ -84,7 +85,8 @@ class MetaAnalysisTools:
         Perform statistical meta-analysis using R.
         
         Args:
-            studies: List of study data with effect_size, standard_error, sample_size
+            studies: List of study data with effect_size, standard_error, sample_size (optional if session_id provided)
+            session_id: Session ID to use studies from session (optional if studies provided)
             method: Meta-analysis method ("fixed" or "random")
             measure: Effect measure (SMD, MD, OR, RR, RD)
             
@@ -92,8 +94,10 @@ class MetaAnalysisTools:
             Meta-analysis results including pooled effect, confidence intervals, heterogeneity
         """
         try:
-            if not studies:
-                raise ValueError("No studies provided")
+            if session_id and session_id in self.sessions:
+                studies = self.sessions[session_id]["studies"]
+            elif not studies:
+                raise ValueError("Either studies list or valid session_id must be provided")
 
             effect_sizes = [s["effect_size"] for s in studies]
             standard_errors = [s["standard_error"] for s in studies]
@@ -339,18 +343,25 @@ class MetaAnalysisTools:
 
     async def assess_heterogeneity(
         self,
-        studies: List[Dict[str, Any]]
+        studies: List[Dict[str, Any]] = None,
+        session_id: str = None
     ) -> Dict[str, Any]:
         """
         Assess between-study heterogeneity using R.
         
         Args:
-            studies: Study data with effect_size and variance
+            studies: Study data with effect_size and variance (optional if session_id provided)
+            session_id: Session ID to use studies from session (optional if studies provided)
             
         Returns:
             Heterogeneity assessment results
         """
         try:
+            if session_id and session_id in self.sessions:
+                studies = self.sessions[session_id]["studies"]
+            elif not studies:
+                raise ValueError("Either studies list or valid session_id must be provided")
+                
             if len(studies) < 2:
                 raise ValueError("At least 2 studies required for heterogeneity assessment")
 
@@ -618,14 +629,22 @@ class MetaAnalysisTools:
                f"({measure} = {effect:.3f}, 95% CI [{ci_low:.3f}, {ci_high:.3f}], "
                f"p = {p_value:.3f}) with {heterogeneity}.")
 
-    async def initialize_meta_analysis(self, title: str = "Meta-Analysis", description: str = "") -> Dict[str, Any]:
+    async def initialize_meta_analysis(self, user_id: str = "default_user", title: str = "Meta-Analysis", 
+                                      description: str = "", project_name: str = "", 
+                                      study_type: str = "clinical_trial", effect_measure: str = "SMD") -> Dict[str, Any]:
         """Initialize a new meta-analysis session."""
         import uuid
         session_id = str(uuid.uuid4())
         
+        if project_name:
+            title = project_name
+        
         self.sessions[session_id] = {
+            "user_id": user_id,
             "title": title,
             "description": description,
+            "study_type": study_type,
+            "effect_measure": effect_measure,
             "created_at": "2025-07-29",
             "studies": [],
             "results": {},
@@ -634,8 +653,11 @@ class MetaAnalysisTools:
         
         return {
             "session_id": session_id,
+            "user_id": user_id,
             "title": title,
             "description": description,
+            "study_type": study_type,
+            "effect_measure": effect_measure,
             "status": "initialized",
             "message": "Meta-analysis session created successfully"
         }
@@ -646,10 +668,20 @@ class MetaAnalysisTools:
             raise ValueError(f"Session {session_id} not found")
         
         required_fields = ["study_id", "effect_size", "standard_error", "sample_size"]
+        validation_errors = []
+        
         for study in studies:
             for field in required_fields:
                 if field not in study:
-                    raise ValueError(f"Missing required field '{field}' in study {study.get('study_id', 'unknown')}")
+                    validation_errors.append(f"Missing required field '{field}' in study {study.get('study_id', 'unknown')}")
+        
+        if validation_errors:
+            return {
+                "session_id": session_id,
+                "validation_status": "failed",
+                "errors": validation_errors,
+                "message": f"Validation failed with {len(validation_errors)} errors"
+            }
         
         self.sessions[session_id]["studies"] = studies
         
@@ -657,6 +689,11 @@ class MetaAnalysisTools:
             "session_id": session_id,
             "studies_uploaded": len(studies),
             "validation_status": "passed",
+            "validation_summary": {
+                "total_studies": len(studies),
+                "valid_studies": len(studies),
+                "invalid_studies": 0
+            },
             "message": f"Successfully uploaded {len(studies)} studies"
         }
 
