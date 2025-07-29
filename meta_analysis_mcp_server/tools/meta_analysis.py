@@ -220,7 +220,7 @@ class MetaAnalysisTools:
             if session_id:
                 if session_id not in self.sessions:
                     self.sessions[session_id] = {}
-                self.sessions[session_id]['last_meta_analysis'] = meta_result.dict()
+                self.sessions[session_id]['last_meta_analysis'] = meta_result.model_dump()
                 self.sessions[session_id]['last_activity'] = datetime.now()
             
             execution_time = (datetime.now() - start_time).total_seconds() * 1000
