@@ -20,7 +20,7 @@ from datetime import datetime
 from ..models import (
     MetaAnalysisResult, ForestPlotResult, PublicationBiasResult, 
     HeterogeneityMetrics, StudyData, ConfidenceInterval,
-    ToolResponse, ValidationError
+    ToolResponse, ValidationError, PublicationBiasTest
 )
 
 logger = logging.getLogger(__name__)
