@@ -38,7 +38,7 @@ assess_publication_bias <- function(effect_sizes, standard_errors, study_ids) {
         p_value = as.numeric(begg_test$pval),
         method = "Begg's rank correlation test"
       ),
-      interpretation = if(egger_test$pval < 0.05) "Significant publication bias detected" else "No significant publication bias detected"
+      interpretation = if(egger_test$pval < alpha) "Significant publication bias detected" else "No significant publication bias detected"
     )
     
     return(toJSON(bias_results, auto_unbox = TRUE))
