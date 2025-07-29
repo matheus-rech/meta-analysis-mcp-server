@@ -1,0 +1,68 @@
+{
+  "upload_data": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisTools' object has no attribute 'upload_data'"
+    }
+  },
+  "validate_data": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisTools' object has no attribute 'validate_data'"
+    }
+  },
+  "perform_meta_analysis": {
+    "success": false,
+    "result": {
+      "error": "MetaAnalysisTools.perform_meta_analysis() got an unexpected keyword argument 'session_id'"
+    }
+  },
+  "assess_heterogeneity": {
+    "success": false,
+    "result": {
+      "error": "MetaAnalysisTools.assess_heterogeneity() got an unexpected keyword argument 'session_id'"
+    }
+  },
+  "detect_publication_bias": {
+    "success": false,
+    "result": {
+      "error": "MetaAnalysisTools.detect_publication_bias() got an unexpected keyword argument 'session_id'"
+    }
+  },
+  "create_forest_plot": {
+    "success": false,
+    "result": {
+      "error": "MetaAnalysisTools.create_forest_plot() got an unexpected keyword argument 'session_id'"
+    }
+  },
+  "create_funnel_plot": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisTools' object has no attribute 'create_funnel_plot'"
+    }
+  },
+  "assess_risk_of_bias": {
+    "success": false,
+    "result": {
+      "error": "CochraneComplianceTools.assess_risk_of_bias() got an unexpected keyword argument 'session_id'"
+    }
+  },
+  "generate_prisma_checklist": {
+    "success": false,
+    "result": {
+      "error": "CochraneComplianceTools.generate_prisma_checklist() got an unexpected keyword argument 'session_id'"
+    }
+  },
+  "create_prisma_flow_diagram": {
+    "success": false,
+    "result": {
+      "error": "'CochraneComplianceTools' object has no attribute 'create_prisma_flow_diagram'"
+    }
+  },
+  "generate_cochrane_report": {
+    "success": false,
+    "result": {
+      "error": "CochraneComplianceTools.generate_cochrane_report() got an unexpected keyword argument 'session_id'"
+    }
+  }
+}

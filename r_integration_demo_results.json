@@ -1,0 +1,250 @@
+{
+  "meta_analysis": {
+    "success": true,
+    "result": {
+      "meta_analysis_results": {
+        "method": "random",
+        "measure": "SMD",
+        "number_of_studies": 3,
+        "total_participants": 300,
+        "pooled_effect": 0.5133,
+        "standard_error": 0.1057,
+        "ci_lower": 0.3061,
+        "ci_upper": 0.7205,
+        "z_value": 4.8559,
+        "p_value": 1.1981e-06,
+        "significant": true
+      },
+      "heterogeneity": {
+        "Q_statistic": 4.4387,
+        "degrees_of_freedom": 2,
+        "p_heterogeneity": 0.1087,
+        "I_squared": 55.7813,
+        "tau_squared": 0.0186,
+        "interpretation": "Substantial heterogeneity"
+      },
+      "study_results": [
+        {
+          "study_id": "study_1",
+          "effect_size": 0.5,
+          "standard_error": 0.1,
+          "weight": 46.75324675324675,
+          "ci_lower": 0.304,
+          "ci_upper": 0.696
+        },
+        {
+          "study_id": "study_2",
+          "effect_size": 0.3,
+          "standard_error": 0.15,
+          "weight": 20.77922077922078,
+          "ci_lower": 0.006000000000000005,
+          "ci_upper": 0.594
+        },
+        {
+          "study_id": "study_3",
+          "effect_size": 0.7,
+          "standard_error": 0.12,
+          "weight": 32.46753246753247,
+          "ci_lower": 0.4648,
+          "ci_upper": 0.9351999999999999
+        }
+      ],
+      "summary": "Meta-analysis shows a significant positive effect (SMD = 0.513, 95% CI [0.306, 0.721], p = 0.000) with substantial heterogeneity."
+    }
+  },
+  "forest_plot": {
+    "success": false,
+    "error": "MetaAnalysisTools.create_forest_plot() got an unexpected keyword argument 'method'"
+  },
+  "heterogeneity": {
+    "success": false,
+    "error": "MetaAnalysisTools.assess_heterogeneity() got an unexpected keyword argument 'method'"
+  },
+  "publication_bias": {
+    "success": false,
+    "error": "MetaAnalysisTools.detect_publication_bias() got an unexpected keyword argument 'method'"
+  },
+  "risk_of_bias": {
+    "success": true,
+    "result": {
+      "assessment_summary": {
+        "total_studies": 3,
+        "assessment_mode": "hybrid",
+        "domains_assessed": [
+          "randomization",
+          "allocation_concealment",
+          "blinding"
+        ],
+        "assessment_date": "2025-07-29T09:34:41.896121"
+      },
+      "study_assessments": [
+        {
+          "study_id": "study_1",
+          "title": "Effectiveness of Treatment A in Population 1",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ],
+              "requires_manual_review": true
+            },
+            "allocation_concealment": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            },
+            "blinding": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            }
+          },
+          "overall_risk": "Some concerns"
+        },
+        {
+          "study_id": "study_2",
+          "title": "Treatment A vs Placebo: RCT Study",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ],
+              "requires_manual_review": true
+            },
+            "allocation_concealment": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            },
+            "blinding": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            }
+          },
+          "overall_risk": "Some concerns"
+        },
+        {
+          "study_id": "study_3",
+          "title": "Multi-center Trial of Treatment A",
+          "domain_assessments": {
+            "randomization": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [
+                "Was the allocation sequence random?",
+                "Was the allocation sequence concealed until participants were enrolled and assigned?"
+              ],
+              "requires_manual_review": true
+            },
+            "allocation_concealment": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            },
+            "blinding": {
+              "risk_level": "Some concerns",
+              "reasoning": "Automated assessment based on available information - Manual review recommended",
+              "confidence": "Low",
+              "signaling_questions": [],
+              "requires_manual_review": true
+            }
+          },
+          "overall_risk": "Some concerns"
+        }
+      ],
+      "domain_summary": {
+        "randomization": {
+          "low_risk": 0,
+          "some_concerns": 3,
+          "high_risk": 0,
+          "percentage_low": 0.0,
+          "percentage_high": 0.0
+        },
+        "allocation_concealment": {
+          "low_risk": 0,
+          "some_concerns": 3,
+          "high_risk": 0,
+          "percentage_low": 0.0,
+          "percentage_high": 0.0
+        },
+        "blinding": {
+          "low_risk": 0,
+          "some_concerns": 3,
+          "high_risk": 0,
+          "percentage_low": 0.0,
+          "percentage_high": 0.0
+        }
+      },
+      "overall_assessment": {
+        "studies_low_risk": 0,
+        "studies_some_concerns": 3,
+        "studies_high_risk": 0,
+        "percentage_low_risk": 0.0,
+        "percentage_high_risk": 0.0,
+        "interpretation": "Mixed risk profile - moderate confidence in results"
+      },
+      "visualization": {
+        "plot_type": "traffic_light",
+        "data_matrix": [
+          {
+            "study_id": "study_1",
+            "domains": {
+              "randomization": "Some concerns",
+              "allocation_concealment": "Some concerns",
+              "blinding": "Some concerns"
+            }
+          },
+          {
+            "study_id": "study_2",
+            "domains": {
+              "randomization": "Some concerns",
+              "allocation_concealment": "Some concerns",
+              "blinding": "Some concerns"
+            }
+          },
+          {
+            "study_id": "study_3",
+            "domains": {
+              "randomization": "Some concerns",
+              "allocation_concealment": "Some concerns",
+              "blinding": "Some concerns"
+            }
+          }
+        ],
+        "color_coding": {
+          "Low": "#00FF00",
+          "Some concerns": "#FFFF00",
+          "High": "#FF0000"
+        }
+      }
+    }
+  },
+  "prisma_checklist": {
+    "success": false,
+    "error": "CochraneComplianceTools.generate_prisma_checklist() got an unexpected keyword argument 'review_type'"
+  },
+  "cochrane_report": {
+    "success": false,
+    "error": "CochraneComplianceTools.generate_cochrane_report() got an unexpected keyword argument 'title'"
+  }
+}

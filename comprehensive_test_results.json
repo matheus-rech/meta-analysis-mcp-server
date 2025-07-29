@@ -1,0 +1,68 @@
+{
+  "upload_data": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  },
+  "validate_data": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  },
+  "perform_meta_analysis": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  },
+  "assess_heterogeneity": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  },
+  "detect_publication_bias": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  },
+  "create_forest_plot": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  },
+  "create_funnel_plot": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  },
+  "assess_risk_of_bias": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  },
+  "generate_prisma_checklist": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  },
+  "create_prisma_flow_diagram": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  },
+  "generate_cochrane_report": {
+    "success": false,
+    "result": {
+      "error": "'MetaAnalysisServer' object has no attribute 'call_tool'"
+    }
+  }
+}
